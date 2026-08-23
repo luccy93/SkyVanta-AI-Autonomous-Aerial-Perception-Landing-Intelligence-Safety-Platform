@@ -1,6 +1,6 @@
-# Drone Landing Perception System
+# SkyVanta-AI - Drone Landing Perception System
 
-## dev/creator = tubakhxn
+## Creator / Developer: SkyVanta-AI / Devendraprasad
 
 ### Vision-Based Target Tracking, Approach Estimation & Landing Guidance
 
@@ -295,9 +295,10 @@ output/demo_perception.mp4
 The project is intentionally lightweight and easy to run.
 
 ```text
-Drone-Landing-Perception-System/
+SkyVanta-AI/
 │
 ├── main.py
+├── main.cpp
 ├── requirements.txt
 │
 └── output/

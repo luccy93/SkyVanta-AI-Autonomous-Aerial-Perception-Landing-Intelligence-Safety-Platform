@@ -1,5 +1,5 @@
 // dev/creator=SkyVanta-AI / Devendraprasad
-// Build: g++ -std=c++17 hud_single.cpp -o hud_single `pkg-config --cflags --libs opencv4`
+// Build: g++ -std=c++17 main.cpp -o main `pkg-config --cflags --libs opencv4`
 #include <opencv2/opencv.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <cmath>
