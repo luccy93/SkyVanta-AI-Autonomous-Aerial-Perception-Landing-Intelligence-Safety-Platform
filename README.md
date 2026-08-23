@@ -1,366 +1,145 @@
-# SkyVanta-AI - Drone Landing Perception System
+# SkyVanta AI — Autonomous Aerial Perception, Landing Intelligence & Safety Platform
 
-## Creator / Developer: SkyVanta-AI / Devendraprasad
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/tests-25%20passed-brightgreen.svg)](tests/)
 
-### Vision-Based Target Tracking, Approach Estimation & Landing Guidance
-
-A real-time computer vision project that analyzes drone footage and generates a visual landing perception interface.
-
-The system detects and tracks a drone, estimates its relative motion, and projects a perspective-aware approach corridor toward a virtual landing zone. It combines temporal tracking, motion analysis, smoothing, trajectory estimation, and real-time visualization to simulate components of a drone landing perception pipeline.
-
-Built for computer vision experimentation, visualization, and autonomous systems research.
+**Developer / Creator:** SkyVanta-AI / Devendraprasad  
+**Repository:** [https://github.com/luccy93/SkyVanta-AI](https://github.com/luccy93/SkyVanta-AI)
 
 ---
 
-# Overview
+## Overview
 
-Autonomous landing requires a system to understand the relative position and motion of an aircraft during its approach toward a landing area.
+**SkyVanta AI** is a modular computer vision, visual target tracking, and autonomous aerial perception platform designed for drone landing intelligence, relative approach geometry estimation, and tactical situational awareness.
 
-This project explores that concept using monocular video and computer vision.
-
-Given a video input, the system can:
-
-* Detect and track a drone
-* Maintain a persistent target track
-* Smooth detection and motion estimates
-* Estimate relative approach behavior
-* Generate a virtual landing zone
-* Project a perspective-aware approach corridor
-* Calculate visual alignment and offset metrics
-* Display real-time telemetry and tracking status
-* Render the processed perception output as a video
-
-The result is a visual prototype inspired by UAV perception and autonomous landing systems.
+The platform provides:
+* **Hybrid Visual Detection**: Multi-cue candidate fusion combining YOLO deep learning inference with MOG2 background subtraction, Farneback dense optical flow, and Canny edge density scoring.
+* **Persistent State Estimation**: Linear 2D Kalman filter with dual One-Euro adaptive low-pass filters for zero-latency jitter reduction.
+* **Tactical Approach Corridor**: Perspective-aware 3D-style trapezoidal approach guidance tunnel dynamically projected to the ground landing pad.
+* **Visual Telemetry Readouts**: Heuristic visual distance, altitude, lateral/vertical offset, approach angle, and alignment estimations.
+* **Modular Python Package & C++ Subsystem**: Clean `skyvanta` package with typed Pydantic data structures, YAML configuration, CLI runner, and CMake C++ subsystem.
 
 ---
 
-# Features
+## System Architecture (Volume 1)
 
-## Real-Time Drone Detection & Tracking
-
-The system detects the drone and maintains a stable target position across video frames.
-
-The tracking pipeline can combine:
-
-* Motion-based detection
-* Contrast and contour analysis
-* Temporal tracking
-* Position prediction
-* Optional object detection assistance
-
-A persistent tracking state helps maintain the target even when detections become temporarily unstable.
-
----
-
-## Temporal Smoothing
-
-Raw computer vision detections can be noisy.
-
-The system applies temporal filtering to smooth:
-
-* Drone position
-* Bounding box coordinates
-* Target center
-* Motion trajectory
-* Landing corridor geometry
-* Landing zone position
-* Confidence values
-* HUD telemetry
-
-This creates a more stable perception visualization and reduces jitter between frames.
-
----
-
-## Landing Approach Estimation
-
-The system generates a visual approach path between the tracked drone and a virtual landing region.
-
-The visualization includes:
-
-* Perspective-aware approach boundaries
-* Center guidance line
-* Semi-transparent approach corridor
-* Relative alignment estimation
-* Lateral offset estimation
-* Vertical offset estimation
-* Estimated approach direction
-
-The geometry dynamically updates based on the tracked drone position and motion.
-
----
-
-## Virtual Landing Zone
-
-A virtual landing region is rendered into the video using perspective-aware geometry.
-
-The landing visualization includes:
-
-* Four landing-zone corner markers
-* Dashed perimeter geometry
-* Semi-transparent landing surface
-* Perspective-aware quadrilateral
-* Animated scanning effects
-* Dynamic approach alignment
-
-The landing zone acts as a visual target for the perception system.
-
----
-
-## Relative Motion & Depth Estimation
-
-The system estimates relative approach behavior using visual information such as:
-
-* Target scale changes
-* Bounding box size
-* Frame-to-frame motion
-* Trajectory direction
-* Temporal position history
-
-These estimates are used to generate normalized telemetry and approach metrics.
-
-The displayed measurements are visual estimates intended for experimentation and visualization.
-
----
-
-# Tracking States
-
-The perception system can transition between multiple states:
-
-```text
-SEARCHING
-ACQUIRED
-TRACKING
-LOCKED
-APPROACHING
 ```
-
-State transitions are temporally filtered to avoid rapid switching or visual flickering.
-
----
-
-# Telemetry Interface
-
-The real-time HUD can display metrics such as:
-
-* FPS
-* Frame number
-* Tracking status
-* Target confidence
-* Alignment score
-* Estimated distance
-* Lateral offset
-* Vertical offset
-* Approach angle
-* Landing confidence
-
-Example output:
-
-```text
-STATUS: LOCKED
-TRACK ID: 01
-
-CONFIDENCE: 92%
-ALIGNMENT: 87%
-
-EST. DISTANCE: 24.8 m
-LATERAL OFFSET: 0.8 m
-VERTICAL OFFSET: 0.4 m
-
-APPROACH ANGLE: -5.0 deg
-LANDING CONFIDENCE: 91%
+SkyVanta-AI/
+├── skyvanta/                     # Core Modular Python Package
+│   ├── core/                    # Types, Config, Logging, Exceptions
+│   ├── perception/              # YOLO & Motion Contrast Detectors + Fusion
+│   ├── tracking/                # KalmanBox2D, OneEuroFilter, TrackStateMachine
+│   ├── telemetry/               # TelemetryEstimator (heuristic visual metrics)
+│   ├── visualization/           # Palette, Drawing Primitives, Corridor, HUD Compositor
+│   ├── simulation/              # Procedural Aerial Scene & Demo Generator
+│   └── pipeline/                # PipelineRunner & Ingestion Orchestrator
+├── cpp/                         # Standalone C++ Subsystem & CMake Build
+│   ├── CMakeLists.txt
+│   └── src/main.cpp
+├── config/                      # YAML Configuration Files
+│   └── default.yaml
+├── legacy/                      # Preserved Baseline Prototypes
+│   ├── main.py
+│   └── main.cpp
+├── tests/                       # Pytest Suite (Unit, Integration, Parity)
+│   ├── unit/
+│   ├── integration/
+│   └── characterization/
+├── pyproject.toml               # Modern Python Package Specification
+└── requirements.txt             # Locked Dependencies
 ```
 
 ---
 
-# 3D-Style Perception Visualization
+## Installation
 
-The system renders a secondary perception panel showing a simplified representation of:
-
-* Drone position
-* Landing target
-* Relative trajectory
-* Motion history
-* Estimated approach direction
-
-This creates a 3D-style visualization of the drone's movement toward the landing area.
-
----
-
-# Processing Pipeline
-
-```text
-VIDEO INPUT
-     |
-     v
-FRAME PROCESSING
-     |
-     v
-DRONE DETECTION
-     |
-     v
-TEMPORAL TRACKING
-     |
-     v
-POSITION SMOOTHING
-     |
-     v
-MOTION / APPROACH ESTIMATION
-     |
-     v
-LANDING ZONE GENERATION
-     |
-     v
-PERSPECTIVE CORRIDOR PROJECTION
-     |
-     v
-HUD + TELEMETRY RENDERING
-     |
-     v
-OUTPUT VIDEO
-```
-
----
-
-# Installation
-
-Clone the repository:
-
+### 1. Clone Repository
 ```bash
 git clone https://github.com/luccy93/SkyVanta-AI.git
-```
-
-Move into the project directory:
-
-```bash
 cd SkyVanta-AI
 ```
 
-Install dependencies:
-
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-# Usage
-
-Run the system with a video:
-
+For development and test dependencies:
 ```bash
-python main.py input.mp4
+pip install -r requirements-dev.txt
 ```
-
-The processed perception video is automatically saved to:
-
-```text
-output/input_perception.mp4
-```
-
-The output directory is created automatically if it does not already exist.
 
 ---
 
-# Demo Mode
+## Usage
 
-Run the project without providing a video:
-
+### 1. Run Procedural Synthetic Demonstration
 ```bash
-python main.py
+python -m skyvanta --demo
+# or simply:
+python -m skyvanta
+```
+Renders a 13-second synthetic aerial approach demonstration to `output/demo_perception.mp4`.
+
+### 2. Process Input Video File
+```bash
+python -m skyvanta --input path/to/flight_video.mp4 --output output/rendered_perception.mp4
 ```
 
-Demo mode automatically generates a synthetic perception demonstration.
+### 3. Custom Configuration
+```bash
+python -m skyvanta --input flight.mp4 --config config/default.yaml
+```
 
-The demo includes:
+### 4. Detection Mode Flags
+* Force enable YOLO object detection: `python -m skyvanta --yolo`
+* Disable YOLO (motion-contrast only): `python -m skyvanta --no-yolo`
 
-* Animated drone tracking
-* Smooth trajectory motion
-* Landing-zone visualization
-* Perspective-aware approach corridor
-* Dynamic telemetry
-* Tracking state transitions
-* Confidence updates
-* Animated HUD elements
+---
 
-The generated demo is saved to:
+## Testing & Quality Assurance
 
-```text
-output/demo_perception.mp4
+Run the automated test harness:
+```bash
+pytest
+```
+The test harness runs 25 automated tests across:
+* **Unit Tests**: Bounding box geometry, IoU calculation, configuration serialization, Kalman predict/correct cycles, One-Euro low-pass filtering, tracking FSM transitions.
+* **Integration Tests**: End-to-end video pipeline synthesis without crashes.
+* **Characterization Tests**: Numerical and mathematical parity verification against baseline algorithms.
+
+---
+
+## Standalone C++ Subsystem
+
+Build and execute the C++ Kalman bouncing ball and HUD rendering demo:
+```bash
+cd cpp
+mkdir build && cd build
+cmake ..
+cmake --build .
+./skyvanta_cpp_demo
 ```
 
 ---
 
-# Project Structure
+## Legacy Prototype Archive
 
-The project is intentionally lightweight and easy to run.
-
-```text
-SkyVanta-AI/
-│
-├── main.py
-├── main.cpp
-├── requirements.txt
-│
-└── output/
-```
+The original monolithic prototype files are preserved in `legacy/`:
+* `legacy/main.py`: `python legacy/main.py [video.mp4]`
+* `legacy/main.cpp`: Standalone OpenCV C++ prototype
 
 ---
 
-# Technology Stack
+## Disclaimer
 
-* Python
-* OpenCV
-* NumPy
-* Computer Vision
-* Object Tracking
-* Motion Analysis
-* Temporal Filtering
-* Perspective Geometry
-
-Optional detection models may be used to assist the tracking pipeline.
+SkyVanta AI Volume 1 is an experimental computer vision and software perception platform. Telemetry metrics (distance, altitude, angle, alignment) are derived from 2D visual heuristics and pixel scale changes. They represent visual approximations for simulation and HUD display, not certified physical avionics measurements.
 
 ---
 
-# Applications
-
-This project explores concepts relevant to:
-
-* UAV perception
-* Drone tracking
-* Vision-based landing research
-* Autonomous systems visualization
-* Landing target analysis
-* Motion estimation
-* Robotics perception
-* Computer vision prototyping
-
----
-
-# Important Note
-
-This project is an experimental computer vision and visualization system.
-
-Estimated distance, alignment, landing confidence, and other telemetry values are derived from visual heuristics and relative motion analysis. These values should not be interpreted as certified physical measurements.
-
-The system is intended for:
-
-* Educational purposes
-* Computer vision experimentation
-* Research prototyping
-* Visualization of UAV perception concepts
-
-It is not intended for direct real-world flight control or safety-critical autonomous operation.
-
----
-
-# License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Copyright (c) 2026 SkyVanta-AI / Devendraprasad
-
----
-
-## Developer
-
-**SkyVanta-AI / Devendraprasad**
+Copyright (c) 2026 **SkyVanta-AI / Devendraprasad**

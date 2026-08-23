@@ -1,0 +1,42 @@
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Video Output Artifacts
+output/
+*.mp4
+*.avi
+kalman_ball_output.mp4
+
+# C++ Build Artifacts
+cpp/build/
+*.o
+*.obj
+*.exe
+*.out
+main
+skyvanta_cpp_demo

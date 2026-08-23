@@ -1,0 +1,8 @@
+# SkyVanta AI — Production & Core Runtime Dependencies
+numpy>=1.24.0
+opencv-contrib-python>=4.8.0
+scipy>=1.10.0
+pydantic>=2.0.0
+pyyaml>=6.0.0
+# Optional deep learning detector support:
+# ultralytics>=8.0.0
