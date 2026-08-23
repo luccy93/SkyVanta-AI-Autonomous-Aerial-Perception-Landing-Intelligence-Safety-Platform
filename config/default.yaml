@@ -1,19 +1,48 @@
-# SkyVanta AI — Default Configuration File
-detector:
-  use_yolo: true
-  yolo_model_path: "yolov8n.pt"
-  yolo_confidence_threshold: 0.08
-  yolo_input_size: 640
-  yolo_accept_classes:
-    - airplane
-    - bird
-    - kite
-    - frisbee
-  motion_history: 120
-  motion_var_threshold: 18.0
-  motion_min_area_ratio: 0.00004
-  motion_max_area_ratio: 0.06
-  fusion_iou_threshold: 0.1
+# SkyVanta AI — Master Configuration File
+perception:
+  enabled: true
+  detector:
+    use_yolo: true
+    yolo_model_path: "yolov8n.pt"
+    yolo_confidence_threshold: 0.08
+    yolo_iou_threshold: 0.45
+    yolo_input_size: 640
+    yolo_device: "cpu"
+    yolo_accept_classes:
+      - airplane
+      - bird
+      - kite
+      - frisbee
+  motion:
+    enabled: true
+    history: 120
+    var_threshold: 18.0
+    detect_shadows: false
+    min_area_ratio: 0.00004
+    max_area_ratio: 0.06
+    min_aspect_ratio: 0.25
+    max_aspect_ratio: 4.5
+    edge_weight: 3.0
+  optical_flow:
+    enabled: true
+    pyr_scale: 0.5
+    levels: 2
+    winsize: 15
+    iterations: 2
+    poly_n: 5
+    poly_sigma: 1.1
+    magnitude_threshold: 40.0
+  fusion:
+    iou_threshold: 0.10
+    weight_detection: 0.50
+    weight_motion: 0.30
+    weight_flow: 0.10
+    weight_iou: 0.10
+  selection:
+    min_candidate_score: 0.15
+    min_box_area_ratio: 0.00004
+    max_box_area_ratio: 0.25
+    roi_top_cutoff_ratio: 0.85
 
 smoothing:
   center_min_cutoff: 1.0

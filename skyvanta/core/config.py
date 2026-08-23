@@ -3,27 +3,81 @@
 Eliminates scattered magic numbers and provides clean YAML/dictionary loading.
 """
 
-from typing import Optional, Set
+from typing import List, Optional, Set
 from pydantic import BaseModel, Field
 import yaml
 import os
 
 
 class DetectorConfig(BaseModel):
-    """Configuration for YOLO and Motion detectors."""
+    """Configuration for deep learning object detectors."""
     use_yolo: bool = Field(default=True, description="Enable YOLO deep learning detector")
     yolo_model_path: str = Field(default="yolov8n.pt", description="Path or name of YOLO weights")
     yolo_confidence_threshold: float = Field(default=0.08, ge=0.01, le=1.0)
+    yolo_iou_threshold: float = Field(default=0.45, ge=0.01, le=1.0)
     yolo_input_size: int = Field(default=640, description="Inference image dimension")
+    yolo_device: str = Field(default="cpu", description="Inference device: cpu, cuda:0, etc.")
     yolo_accept_classes: Set[str] = Field(
         default={"airplane", "bird", "kite", "frisbee"},
         description="Target class labels accepted by proxy detector"
     )
-    motion_history: int = Field(default=120, description="MOG2 background history frames")
-    motion_var_threshold: float = Field(default=18.0, description="MOG2 variance threshold")
-    motion_min_area_ratio: float = Field(default=0.00004, description="Min contour area ratio")
-    motion_max_area_ratio: float = Field(default=0.06, description="Max contour area ratio")
-    fusion_iou_threshold: float = Field(default=0.1, description="IoU threshold to fuse YOLO + Motion")
+    motion_history: int = Field(default=120, description="MOG2 background history frames (legacy alias)")
+    motion_var_threshold: float = Field(default=18.0, description="MOG2 variance threshold (legacy alias)")
+    motion_min_area_ratio: float = Field(default=0.00004, description="Min contour area ratio (legacy alias)")
+    motion_max_area_ratio: float = Field(default=0.06, description="Max contour area ratio (legacy alias)")
+    fusion_iou_threshold: float = Field(default=0.1, description="IoU threshold to fuse YOLO + Motion (legacy alias)")
+
+
+class MotionConfig(BaseModel):
+    """Configuration for background subtraction and contour motion analysis."""
+    enabled: bool = Field(default=True, description="Enable motion contrast detection")
+    history: int = Field(default=120, description="MOG2 history frame count")
+    var_threshold: float = Field(default=18.0, description="MOG2 variance threshold")
+    detect_shadows: bool = Field(default=False, description="MOG2 shadow detection flag")
+    min_area_ratio: float = Field(default=0.00004, description="Minimum contour area ratio of frame")
+    max_area_ratio: float = Field(default=0.06, description="Maximum contour area ratio of frame")
+    min_aspect_ratio: float = Field(default=0.25, description="Minimum width/height aspect ratio")
+    max_aspect_ratio: float = Field(default=4.5, description="Maximum width/height aspect ratio")
+    edge_weight: float = Field(default=3.0, description="Multiplier for Canny edge density scoring")
+
+
+class OpticalFlowConfig(BaseModel):
+    """Configuration for dense Farneback optical flow."""
+    enabled: bool = Field(default=True, description="Enable dense optical flow calculation")
+    pyr_scale: float = Field(default=0.5, description="Image scale (<1) to build pyramids")
+    levels: int = Field(default=2, description="Number of pyramid layers")
+    winsize: int = Field(default=15, description="Averaging window size")
+    iterations: int = Field(default=2, description="Iterations at each pyramid level")
+    poly_n: int = Field(default=5, description="Pixel neighborhood polynomial expansion size")
+    poly_sigma: float = Field(default=1.1, description="Gaussian standard deviation for polynomial derivative")
+    magnitude_threshold: float = Field(default=40.0, description="Normalized magnitude threshold for flow mask")
+
+
+class FusionConfig(BaseModel):
+    """Configuration for candidate fusion and scoring."""
+    iou_threshold: float = Field(default=0.10, description="Spatial IoU threshold to associate detections and motion")
+    weight_detection: float = Field(default=0.50, description="Weight for semantic detector confidence in candidate_score")
+    weight_motion: float = Field(default=0.30, description="Weight for motion contrast confidence in candidate_score")
+    weight_flow: float = Field(default=0.10, description="Weight for optical flow energy in candidate_score")
+    weight_iou: float = Field(default=0.10, description="Weight for detector/motion overlap in candidate_score")
+
+
+class TargetSelectionConfig(BaseModel):
+    """Configuration for target selection heuristics."""
+    min_candidate_score: float = Field(default=0.15, description="Minimum candidate score to qualify as target")
+    min_box_area_ratio: float = Field(default=0.00004, description="Minimum bounding box area relative to image")
+    max_box_area_ratio: float = Field(default=0.25, description="Maximum bounding box area relative to image")
+    roi_top_cutoff_ratio: float = Field(default=0.85, description="Ignore candidates below this vertical ratio")
+
+
+class PerceptionConfig(BaseModel):
+    """Master configuration for the Computer Vision Perception Subsystem."""
+    enabled: bool = Field(default=True, description="Enable perception subsystem")
+    detector: DetectorConfig = Field(default_factory=DetectorConfig)
+    motion: MotionConfig = Field(default_factory=MotionConfig)
+    optical_flow: OpticalFlowConfig = Field(default_factory=OpticalFlowConfig)
+    fusion: FusionConfig = Field(default_factory=FusionConfig)
+    selection: TargetSelectionConfig = Field(default_factory=TargetSelectionConfig)
 
 
 class SmoothingConfig(BaseModel):
@@ -68,11 +122,17 @@ class PipelineConfig(BaseModel):
 
 class SkyVantaConfig(BaseModel):
     """Master configuration structure for SkyVanta AI."""
+    perception: PerceptionConfig = Field(default_factory=PerceptionConfig)
     detector: DetectorConfig = Field(default_factory=DetectorConfig)
     smoothing: SmoothingConfig = Field(default_factory=SmoothingConfig)
     tracker: TrackerConfig = Field(default_factory=TrackerConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
+
+    def model_post_init(self, __context) -> None:
+        """Syncs top-level detector settings into perception config if modified."""
+        if self.detector != self.perception.detector:
+            self.perception.detector = self.detector
 
     @classmethod
     def from_yaml(cls, path: str) -> "SkyVantaConfig":

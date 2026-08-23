@@ -1,13 +1,13 @@
-"""Backward-compatible re-export of CandidateFusion."""
+"""Candidate fusion and scoring subsystem exports."""
 
+from skyvanta.perception.fusion.scoring import CandidateScorer
 from skyvanta.perception.fusion.candidate_fusion import (
     CandidateFusionEngine,
     CandidateFusion,
 )
-from skyvanta.perception.fusion.scoring import CandidateScorer
 
 __all__ = [
+    "CandidateScorer",
     "CandidateFusionEngine",
     "CandidateFusion",
-    "CandidateScorer",
 ]
