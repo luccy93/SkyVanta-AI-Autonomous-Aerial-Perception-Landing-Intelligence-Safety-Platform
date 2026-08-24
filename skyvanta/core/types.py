@@ -285,6 +285,88 @@ class PerceptionFrameResult(BaseModel):
     diagnostics: Dict[str, Any] = Field(default_factory=dict)
 
 
+class CameraIntrinsics(BaseModel):
+    """Calibrated pinhole camera intrinsic parameters and lens distortion coefficients."""
+    image_width: int = Field(..., gt=0, description="Image frame width in pixels")
+    image_height: int = Field(..., gt=0, description="Image frame height in pixels")
+    fx: float = Field(..., gt=0.0, description="Focal length along X axis in pixels")
+    fy: float = Field(..., gt=0.0, description="Focal length along Y axis in pixels")
+    cx: float = Field(..., description="Principal point X coordinate in pixels")
+    cy: float = Field(..., description="Principal point Y coordinate in pixels")
+    distortion_coefficients: List[float] = Field(
+        default_factory=lambda: [0.0, 0.0, 0.0, 0.0, 0.0],
+        description="Distortion coefficients [k1, k2, p1, p2, k3...]"
+    )
+
+
+class LandingTarget(BaseModel):
+    """Unified detected visual target or fiducial marker representation in image space."""
+    target_id: int = Field(default=0, description="Assigned target identifier")
+    marker_family: str = Field(default="aruco", description="Fiducial family (e.g. DICT_6X6_250, tag36h11)")
+    marker_id: int = Field(default=0, description="Decoded numerical fiducial ID")
+    corners: List[Tuple[float, float]] = Field(
+        ...,
+        description="4 ordered corner coordinates (u, v) in pixels: [Top-Left, Top-Right, Bottom-Right, Bottom-Left]"
+    )
+    center: Tuple[float, float] = Field(..., description="Geometric center pixel coordinate (u, v)")
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Detector confidence score [0.0, 1.0]")
+    timestamp_sec: float = Field(default=0.0, description="Frame capture timestamp in seconds")
+    frame_id: int = Field(default=0, description="Source video frame index")
+    source: str = Field(default="aruco", description="Detection algorithm source provenance")
+
+
+class Pose6D(BaseModel):
+    """6-DoF spatial pose of a target relative to the camera optical frame.
+
+    Units:
+        Translation: meters (X: right, Y: down, Z: forward into scene)
+        Angles: degrees / radians
+    """
+    x: float = Field(..., description="Translation along camera X-axis (right positive) in meters")
+    y: float = Field(..., description="Translation along camera Y-axis (down positive) in meters")
+    z: float = Field(..., description="Translation along camera Z-axis (forward optical depth) in meters")
+    rotation_matrix: List[List[float]] = Field(..., description="3x3 orthonormal rotation matrix R_target_to_cam")
+    rvec: Tuple[float, float, float] = Field(..., description="Rodrigues rotation vector [rx, ry, rz] in radians")
+    quaternion: Tuple[float, float, float, float] = Field(..., description="Unit quaternion [qw, qx, qy, qz]")
+    euler_deg: Tuple[float, float, float] = Field(..., description="Euler angles [roll, pitch, yaw] in degrees")
+    euler_rad: Tuple[float, float, float] = Field(..., description="Euler angles [roll, pitch, yaw] in radians")
+    range_m: float = Field(..., description="Euclidean distance from camera center to target in meters")
+    reprojection_error_rms: float = Field(default=0.0, description="RMS reprojection error across all corners in pixels")
+    reprojection_error_max: float = Field(default=0.0, description="Maximum single-corner reprojection error in pixels")
+    pose_quality: float = Field(default=1.0, ge=0.0, le=1.0, description="Composite pose quality metric [0.0, 1.0]")
+    is_valid: bool = Field(default=True, description="Whether the pose passed all geometric sanity checks")
+    timestamp_sec: float = Field(default=0.0, description="Timestamp of pose estimation")
+    frame_id: int = Field(default=0, description="Video frame index")
+    target_id: int = Field(default=0, description="Associated target identifier")
+    solver_method: str = Field(default="IPPE", description="OpenCV PnP solver algorithm used")
+
+
+class PoseEstimateResult(BaseModel):
+    """Complete output of the 6-DoF PnP spatial pose estimation pipeline for a frame."""
+    timestamp_sec: float
+    frame_id: int
+    target_id: Optional[int] = None
+    pose: Optional[Pose6D] = None
+    target: Optional[LandingTarget] = None
+    reprojection_error_rms: Optional[float] = None
+    pose_quality: float = Field(default=0.0, ge=0.0, le=1.0)
+    is_valid: bool = Field(default=False)
+    failure_reason: Optional[str] = None
+    solver_metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class LandingPad(BaseModel):
+    """Unified landing pad abstraction supporting multi-stage detection modalities."""
+    pad_id: int = Field(default=1, description="Unique landing pad identifier")
+    target_type: str = Field(default="fiducial", description="Target type: fiducial, contour, or deep")
+    marker_id: Optional[int] = Field(default=None, description="Decoded marker ID if fiducial")
+    marker_size_m: float = Field(default=0.20, gt=0.0, description="Physical side length of the square pad in meters")
+    pose: Optional[Pose6D] = Field(default=None, description="Estimated camera-relative 6-DoF pose")
+    corners_2d: List[Tuple[float, float]] = Field(default_factory=list, description="Observed 2D corner pixels")
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Detection confidence score")
+    is_trackable: bool = Field(default=True, description="Whether the pad is currently trackable")
+
+
 class PerceptionResult(BaseModel):
     """Complete perception and estimation output for a single frame (V1 pipeline compatibility)."""
     metadata: FrameMetadata
@@ -293,3 +375,5 @@ class PerceptionResult(BaseModel):
     corridor: Optional[ApproachCorridorGeometry] = None
     perception_frame: Optional[PerceptionFrameResult] = None
     tracking_result: Optional[TrackingResult] = None
+    pose_result: Optional[PoseEstimateResult] = None
+

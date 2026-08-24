@@ -66,6 +66,38 @@ tracking:
     weight_confidence: 0.40
     weight_continuity: 0.20
 
+landing_target:
+  enabled: true
+  detector_type: "aruco"
+  camera:
+    image_width: 1280
+    image_height: 720
+    fx: 1000.0
+    fy: 1000.0
+    cx: 640.0
+    cy: 360.0
+    distortion_coefficients: [0.0, 0.0, 0.0, 0.0, 0.0]
+  april_tag:
+    family: "tag36h11"
+    tag_size_m: 0.20
+    threads: 2
+    quad_decimate: 1.0
+  aruco:
+    dictionary: "DICT_6X6_250"
+    marker_size_m: 0.20
+    adaptive_thresh_win_size_min: 3
+    adaptive_thresh_win_size_max: 23
+    adaptive_thresh_win_size_step: 10
+  pnp:
+    solver: "IPPE"
+    max_reprojection_error_px: 5.0
+    min_depth_m: 0.05
+    max_depth_m: 50.0
+  quality:
+    max_reproj_error_for_zero_quality: 8.0
+    min_corner_area_px: 100.0
+
+
 smoothing:
   center_min_cutoff: 1.0
   center_beta: 0.015

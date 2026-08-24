@@ -152,6 +152,62 @@ class VisualizationConfig(BaseModel):
     show_telemetry: bool = Field(default=True, description="Render telemetry readouts")
 
 
+class CameraConfig(BaseModel):
+    """Camera intrinsic parameters and lens distortion model."""
+    image_width: int = Field(default=1280, gt=0, description="Image frame width in pixels")
+    image_height: int = Field(default=720, gt=0, description="Image frame height in pixels")
+    fx: float = Field(default=1000.0, gt=0.0, description="Focal length along X axis in pixels")
+    fy: float = Field(default=1000.0, gt=0.0, description="Focal length along Y axis in pixels")
+    cx: float = Field(default=640.0, description="Principal point X coordinate in pixels")
+    cy: float = Field(default=360.0, description="Principal point Y coordinate in pixels")
+    distortion_coefficients: List[float] = Field(
+        default_factory=lambda: [0.0, 0.0, 0.0, 0.0, 0.0],
+        description="Distortion coefficients [k1, k2, p1, p2, k3...]"
+    )
+
+
+class AprilTagConfig(BaseModel):
+    """Configuration for AprilTag fiducial detector."""
+    family: str = Field(default="tag36h11", description="AprilTag dictionary family (e.g. tag36h11, tag25h9)")
+    tag_size_m: float = Field(default=0.20, gt=0.0, description="Physical marker side length in meters")
+    threads: int = Field(default=2, ge=1, description="Number of CPU threads for decoding")
+    quad_decimate: float = Field(default=1.0, ge=1.0, description="Decimation factor for quad detection")
+
+
+class ArucoConfig(BaseModel):
+    """Configuration for OpenCV ArUco fiducial detector."""
+    dictionary: str = Field(default="DICT_6X6_250", description="ArUco predefined dictionary name")
+    marker_size_m: float = Field(default=0.20, gt=0.0, description="Physical marker side length in meters")
+    adaptive_thresh_win_size_min: int = Field(default=3, ge=3)
+    adaptive_thresh_win_size_max: int = Field(default=23, ge=3)
+    adaptive_thresh_win_size_step: int = Field(default=10, ge=1)
+
+
+class PnPConfig(BaseModel):
+    """Configuration for Perspective-n-Point 6-DoF pose solver."""
+    solver: str = Field(default="IPPE", description="PnP solver method: IPPE, ITERATIVE, or RANSAC")
+    max_reprojection_error_px: float = Field(default=5.0, gt=0.0, description="Maximum allowable RMS reprojection error")
+    min_depth_m: float = Field(default=0.05, gt=0.0, description="Minimum valid target distance in meters")
+    max_depth_m: float = Field(default=50.0, gt=0.0, description="Maximum valid target distance in meters")
+
+
+class PoseQualityConfig(BaseModel):
+    """Configuration for pose estimation quality rating."""
+    max_reproj_error_for_zero_quality: float = Field(default=8.0, gt=0.0)
+    min_corner_area_px: float = Field(default=100.0, gt=0.0)
+
+
+class LandingTargetConfig(BaseModel):
+    """Master configuration for the Landing Target and Spatial Pose Subsystem."""
+    enabled: bool = Field(default=True, description="Enable spatial target and pose estimation")
+    detector_type: str = Field(default="aruco", description="Fiducial detector engine: aruco, apriltag, or mock")
+    camera: CameraConfig = Field(default_factory=CameraConfig)
+    april_tag: AprilTagConfig = Field(default_factory=AprilTagConfig)
+    aruco: ArucoConfig = Field(default_factory=ArucoConfig)
+    pnp: PnPConfig = Field(default_factory=PnPConfig)
+    quality: PoseQualityConfig = Field(default_factory=PoseQualityConfig)
+
+
 class PipelineConfig(BaseModel):
     """Configuration for end-to-end video pipeline."""
     max_dimension: int = Field(default=1280, description="Max width or height for processing")
@@ -164,11 +220,13 @@ class SkyVantaConfig(BaseModel):
     """Master configuration structure for SkyVanta AI."""
     perception: PerceptionConfig = Field(default_factory=PerceptionConfig)
     tracking: TrackingConfig = Field(default_factory=TrackingConfig)
+    landing_target: LandingTargetConfig = Field(default_factory=LandingTargetConfig)
     detector: DetectorConfig = Field(default_factory=DetectorConfig)
     smoothing: SmoothingConfig = Field(default_factory=SmoothingConfig)
     tracker: TrackerConfig = Field(default_factory=TrackerConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
+
 
     def model_post_init(self, __context) -> None:
         """Syncs top-level detector and tracker settings."""

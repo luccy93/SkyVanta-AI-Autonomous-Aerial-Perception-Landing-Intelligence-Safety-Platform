@@ -19,3 +19,24 @@ class ModelLoadError(SkyVantaError):
 class ConfigurationError(SkyVantaError):
     """Raised when configuration validation or file parsing fails."""
     pass
+
+
+class CalibrationError(SkyVantaError):
+    """Raised when camera calibration is missing, invalid, or malformed."""
+    pass
+
+
+class DetectorError(SkyVantaError):
+    """Raised when target or fiducial detector encounters an unrecoverable failure."""
+    pass
+
+
+class PnPSolverError(SkyVantaError):
+    """Raised when Perspective-n-Point pose solving fails or produces non-finite values."""
+    pass
+
+
+class GeometryError(SkyVantaError):
+    """Raised when marker or target geometry is degenerate, non-convex, or malformed."""
+    pass
+
