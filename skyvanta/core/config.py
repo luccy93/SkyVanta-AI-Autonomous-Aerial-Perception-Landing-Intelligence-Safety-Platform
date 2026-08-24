@@ -208,6 +208,37 @@ class LandingTargetConfig(BaseModel):
     quality: PoseQualityConfig = Field(default_factory=PoseQualityConfig)
 
 
+class CameraExtrinsicsConfig(BaseModel):
+    """Rigid extrinsic spatial relationship between drone body and camera."""
+    enabled: bool = Field(default=True, description="Enable body-to-camera extrinsic transform")
+    parent_frame: str = Field(default="BODY", description="Parent coordinate frame")
+    child_frame: str = Field(default="CAMERA", description="Child coordinate frame")
+    translation_m: List[float] = Field(
+        default_factory=lambda: [0.0, 0.0, 0.0],
+        description="Translation vector [tx, ty, tz] in meters"
+    )
+    rotation_rpy_deg: List[float] = Field(
+        default_factory=lambda: [0.0, 0.0, 0.0],
+        description="Rotation Euler angles [roll, pitch, yaw] in degrees"
+    )
+    rotation_quaternion: Optional[List[float]] = Field(
+        default=None, description="Optional rotation unit quaternion [qw, qx, qy, qz]"
+    )
+
+
+class SpatialConfig(BaseModel):
+    """Central configuration for spatial coordinate frames, transforms, and extrinsics."""
+    enabled: bool = Field(default=True, description="Enable spatial coordinate transform subsystem")
+    default_world_frame: str = Field(default="WORLD", description="Global inertial frame identifier")
+    default_body_frame: str = Field(default="BODY", description="Drone body frame identifier")
+    default_camera_frame: str = Field(default="CAMERA", description="Camera optical frame identifier")
+    default_pad_frame: str = Field(default="LANDING_PAD", description="Landing pad target frame identifier")
+    camera_extrinsics: CameraExtrinsicsConfig = Field(default_factory=CameraExtrinsicsConfig)
+    max_transform_age_sec: float = Field(default=0.5, gt=0.0, description="Maximum valid age for dynamic transforms in seconds")
+    tolerance_orthonormal: float = Field(default=1e-4, gt=0.0, description="Numerical tolerance for rotation matrix orthonormality")
+    tolerance_det: float = Field(default=1e-4, gt=0.0, description="Numerical tolerance for rotation matrix determinant")
+
+
 class PipelineConfig(BaseModel):
     """Configuration for end-to-end video pipeline."""
     max_dimension: int = Field(default=1280, description="Max width or height for processing")
@@ -221,11 +252,13 @@ class SkyVantaConfig(BaseModel):
     perception: PerceptionConfig = Field(default_factory=PerceptionConfig)
     tracking: TrackingConfig = Field(default_factory=TrackingConfig)
     landing_target: LandingTargetConfig = Field(default_factory=LandingTargetConfig)
+    spatial: SpatialConfig = Field(default_factory=SpatialConfig)
     detector: DetectorConfig = Field(default_factory=DetectorConfig)
     smoothing: SmoothingConfig = Field(default_factory=SmoothingConfig)
     tracker: TrackerConfig = Field(default_factory=TrackerConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
+
 
 
     def model_post_init(self, __context) -> None:

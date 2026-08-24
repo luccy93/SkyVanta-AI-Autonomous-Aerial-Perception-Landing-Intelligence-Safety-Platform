@@ -97,6 +97,23 @@ landing_target:
     max_reproj_error_for_zero_quality: 8.0
     min_corner_area_px: 100.0
 
+spatial:
+  enabled: true
+  default_world_frame: "WORLD"
+  default_body_frame: "BODY"
+  default_camera_frame: "CAMERA"
+  default_pad_frame: "LANDING_PAD"
+  camera_extrinsics:
+    enabled: true
+    parent_frame: "BODY"
+    child_frame: "CAMERA"
+    translation_m: [0.0, 0.0, 0.0]
+    rotation_rpy_deg: [0.0, 0.0, 0.0]
+  max_transform_age_sec: 0.5
+  tolerance_orthonormal: 0.0001
+  tolerance_det: 0.0001
+
+
 
 smoothing:
   center_min_cutoff: 1.0

@@ -367,6 +367,58 @@ class LandingPad(BaseModel):
     is_trackable: bool = Field(default=True, description="Whether the pad is currently trackable")
 
 
+class FrameId(str, Enum):
+    """Strongly-typed coordinate frame identifiers across the platform."""
+    CAMERA = "CAMERA"            # Standard pinhole optical frame (+X: right, +Y: down, +Z: forward)
+    BODY = "BODY"                # Drone body frame (+X: forward, +Y: right, +Z: down - NED)
+    WORLD = "WORLD"              # Global / local navigation inertial frame
+    LANDING_PAD = "LANDING_PAD"  # Planar target frame (+X: right, +Y: down, +Z: normal into surface)
+    CUSTOM = "CUSTOM"            # User-defined custom auxiliary frame
+
+
+class TransformStatus(str, Enum):
+    """Availability and dynamics classification of a spatial coordinate transform."""
+    STATIC = "STATIC"            # Time-invariant extrinsic transformation (e.g. mounting)
+    DYNAMIC = "DYNAMIC"          # Time-varying state transform (e.g. visual odometry / tracking)
+    UNAVAILABLE = "UNAVAILABLE"  # Frame relationship is known conceptually but no measurement exists
+
+
+class SpatialUncertainty(BaseModel):
+    """Spatial uncertainty and covariance representation contract for future sensor fusion."""
+    is_available: bool = Field(default=False, description="Whether covariance estimates are populated")
+    translation_std_m: Optional[Tuple[float, float, float]] = Field(
+        default=None, description="Standard deviations (sigma_x, sigma_y, sigma_z) in meters"
+    )
+    rotation_std_rad: Optional[Tuple[float, float, float]] = Field(
+        default=None, description="Angular standard deviations (sigma_roll, sigma_pitch, sigma_yaw) in radians"
+    )
+    covariance_matrix: Optional[List[List[float]]] = Field(
+        default=None, description="6x6 spatial covariance matrix [pos(3), rot(3)] if available"
+    )
+
+
+class SpatialLocalizationResult(BaseModel):
+    """Unified result of transforming a target pose across coordinate frames."""
+    target_id: Optional[int] = Field(default=None, description="Associated target identifier")
+    source_frame: FrameId = Field(..., description="Original coordinate frame of the measurement")
+    target_frame: FrameId = Field(..., description="Target coordinate frame of the expressed pose")
+    pose: Optional[Pose6D] = Field(default=None, description="Transformed 6-DoF pose in target frame")
+    homogeneous_matrix: Optional[List[List[float]]] = Field(
+        default=None, description="4x4 homogeneous transformation matrix T_target_source"
+    )
+    timestamp_sec: float = Field(default=0.0, description="Measurement capture timestamp")
+    transform_chain: List[str] = Field(
+        default_factory=list, description="Sequence of frame hops traversed (e.g. ['LANDING_PAD', 'CAMERA', 'BODY'])"
+    )
+    is_valid: bool = Field(default=False, description="Whether the transformation chain was valid and successfully computed")
+    is_world_relative: bool = Field(
+        default=False, description="Explicit flag: True ONLY if expressed relative to a valid WORLD reference"
+    )
+    failure_reason: Optional[str] = Field(default=None, description="Diagnostic reason if transform failed or was unavailable")
+    uncertainty: SpatialUncertainty = Field(default_factory=SpatialUncertainty)
+    quality_metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
 class PerceptionResult(BaseModel):
     """Complete perception and estimation output for a single frame (V1 pipeline compatibility)."""
     metadata: FrameMetadata
@@ -376,4 +428,6 @@ class PerceptionResult(BaseModel):
     perception_frame: Optional[PerceptionFrameResult] = None
     tracking_result: Optional[TrackingResult] = None
     pose_result: Optional[PoseEstimateResult] = None
+    spatial_localization: Optional[SpatialLocalizationResult] = None
+
 

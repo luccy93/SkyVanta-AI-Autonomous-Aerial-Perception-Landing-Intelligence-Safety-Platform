@@ -40,3 +40,29 @@ class GeometryError(SkyVantaError):
     """Raised when marker or target geometry is degenerate, non-convex, or malformed."""
     pass
 
+
+class TransformError(SkyVantaError):
+    """Base exception for spatial transform and coordinate frame operations."""
+    pass
+
+
+class InvalidTransformError(TransformError):
+    """Raised when an SE(3) matrix is non-orthonormal, singular, or non-finite."""
+    pass
+
+
+class TransformLookupError(TransformError):
+    """Raised when a transform lookup between two frames fails."""
+    pass
+
+
+class DisconnectedFrameError(TransformLookupError):
+    """Raised when no connected transform path exists between two frames in the frame graph."""
+    pass
+
+
+class FrameError(SkyVantaError):
+    """Raised when coordinate frame identifiers or metadata are invalid or ambiguous."""
+    pass
+
+
