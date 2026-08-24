@@ -12,12 +12,22 @@ from pydantic import BaseModel, Field
 
 
 class TrackState(str, Enum):
-    """Discrete state machine states for visual target tracking."""
+    """Discrete state machine states for visual target tracking (legacy compatibility)."""
     SEARCHING = "SEARCHING"
     ACQUIRED = "ACQUIRED"
     TRACKING = "TRACKING"
     LOCKED = "LOCKED"
     APPROACHING = "APPROACHING"
+
+
+class TrackLifecycleState(str, Enum):
+    """Deterministic lifecycle states for multi-target tracking."""
+    TENTATIVE = "TENTATIVE"    # Newly initialized track candidate
+    CONFIRMED = "CONFIRMED"    # Validated by consecutive detections
+    TRACKING = "TRACKING"      # Actively receiving measurements
+    COASTING = "COASTING"      # Temporarily missing measurements (Kalman dead-reckoning)
+    LOST = "LOST"              # Degraded beyond coasting window
+    DELETED = "DELETED"        # Marked for permanent removal
 
 
 class DetectionSource(str, Enum):
@@ -134,7 +144,7 @@ class Candidate(BaseModel):
 
 
 class PerceptionTiming(BaseModel):
-    """Component execution latency breakdown in milliseconds."""
+    """Perception component execution latency breakdown in milliseconds."""
     validation_ms: float = Field(default=0.0)
     detection_ms: float = Field(default=0.0)
     motion_ms: float = Field(default=0.0)
@@ -142,6 +152,72 @@ class PerceptionTiming(BaseModel):
     fusion_ms: float = Field(default=0.0)
     selection_ms: float = Field(default=0.0)
     total_ms: float = Field(default=0.0)
+
+
+class TrajectoryPoint(BaseModel):
+    """Historical 2D trajectory waypoint in pixel space."""
+    x: float = Field(..., description="Center x in image pixels")
+    y: float = Field(..., description="Center y in image pixels")
+    w: Optional[float] = Field(default=None, description="Bounding box width in pixels")
+    h: Optional[float] = Field(default=None, description="Bounding box height in pixels")
+    timestamp_sec: float = Field(..., description="Frame timestamp in seconds")
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
+    state: TrackLifecycleState = Field(default=TrackLifecycleState.TRACKING)
+
+
+class Track(BaseModel):
+    """Full state and trajectory model for a single visual target track."""
+    track_id: int = Field(..., description="Unique stable track identifier")
+    state: TrackLifecycleState = Field(default=TrackLifecycleState.TENTATIVE)
+    bbox: BoundingBox = Field(..., description="Current filtered and smoothed bounding box")
+    predicted_bbox: Optional[BoundingBox] = Field(default=None, description="Prior Kalman prediction")
+    confidence: float = Field(default=0.5, ge=0.0, le=1.0, description="Smoothed confidence score")
+    track_quality: float = Field(default=0.5, ge=0.0, le=1.0, description="Composite track quality rating")
+    age: int = Field(default=1, description="Total elapsed frames since creation")
+    hits: int = Field(default=1, description="Total frames successfully matched with detection")
+    consecutive_hits: int = Field(default=1, description="Current run of consecutive hits")
+    missed_frames: int = Field(default=0, description="Consecutive frames missing measurement")
+    velocity_px_per_sec: Tuple[float, float] = Field(
+        default=(0.0, 0.0),
+        description="Estimated 2D image-space velocity (vx, vy) in pixels/second"
+    )
+    source_class: str = Field(default="drone", description="Class label from detector")
+    source: DetectionSource = Field(default=DetectionSource.YOLO, description="Primary detection provenance")
+    trajectory: List[TrajectoryPoint] = Field(default_factory=list, description="Bounded trajectory trail")
+    created_at_sec: float = Field(default=0.0, description="Timestamp of track initialization")
+    last_seen_sec: float = Field(default=0.0, description="Timestamp of most recent measurement update")
+
+
+class TrackingTiming(BaseModel):
+    """Tracking execution latency breakdown in milliseconds."""
+    prediction_ms: float = Field(default=0.0)
+    association_ms: float = Field(default=0.0)
+    update_ms: float = Field(default=0.0)
+    smoothing_ms: float = Field(default=0.0)
+    lifecycle_ms: float = Field(default=0.0)
+    total_ms: float = Field(default=0.0)
+
+
+class TrackingMetrics(BaseModel):
+    """Runtime tracking subsystem diagnostic metrics."""
+    active_track_count: int = Field(default=0)
+    confirmed_track_count: int = Field(default=0)
+    lost_track_count: int = Field(default=0)
+    average_track_age: float = Field(default=0.0)
+    missed_frame_rate: float = Field(default=0.0)
+    id_switch_count: int = Field(default=0)
+
+
+class TrackingResult(BaseModel):
+    """Subsystem output containing all tracks, lifecycle updates, and latency metrics."""
+    frame_id: int
+    timestamp_sec: float
+    tracks: List[Track] = Field(default_factory=list, description="All active tracks in any lifecycle state")
+    confirmed_tracks: List[Track] = Field(default_factory=list, description="Confirmed tracks (CONFIRMED or TRACKING)")
+    lost_tracks: List[Track] = Field(default_factory=list, description="Coasting or lost tracks")
+    deleted_track_ids: List[int] = Field(default_factory=list, description="Track IDs removed in this frame")
+    timing: TrackingTiming = Field(default_factory=TrackingTiming)
+    metrics: TrackingMetrics = Field(default_factory=TrackingMetrics)
 
 
 class TelemetryEstimate(BaseModel):
@@ -182,7 +258,7 @@ class FrameMetadata(BaseModel):
 
 
 class TrackInfo(BaseModel):
-    """Snapshot of the active target track state."""
+    """Snapshot of the active target track state (legacy HUD compatibility)."""
     track_id: int
     state: TrackState
     confidence: float = Field(..., ge=0.0, le=1.0)
@@ -216,3 +292,4 @@ class PerceptionResult(BaseModel):
     telemetry: Optional[TelemetryEstimate] = None
     corridor: Optional[ApproachCorridorGeometry] = None
     perception_frame: Optional[PerceptionFrameResult] = None
+    tracking_result: Optional[TrackingResult] = None

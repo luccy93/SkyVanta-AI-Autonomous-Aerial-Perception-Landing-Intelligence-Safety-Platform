@@ -80,6 +80,46 @@ class PerceptionConfig(BaseModel):
     selection: TargetSelectionConfig = Field(default_factory=TargetSelectionConfig)
 
 
+class AssociationConfig(BaseModel):
+    """Configuration for data association and spatial gating."""
+    min_iou: float = Field(default=0.15, ge=0.0, le=1.0, description="Minimum IoU to accept association match")
+    max_center_distance_px: float = Field(default=180.0, description="Maximum center pixel displacement gate")
+    min_scale_ratio: float = Field(default=0.2, description="Minimum area ratio between detection and track")
+    max_scale_ratio: float = Field(default=5.0, description="Maximum area ratio between detection and track")
+
+
+class LifecycleConfig(BaseModel):
+    """Configuration for track confirmation and deletion state machine."""
+    min_confirmed_hits: int = Field(default=3, ge=1, description="Hits needed to transition TENTATIVE -> CONFIRMED")
+    max_tentative_misses: int = Field(default=2, ge=1, description="Misses before TENTATIVE track is deleted")
+    max_coasting_frames: int = Field(default=15, ge=1, description="Missed frames in COASTING before transition to LOST")
+    max_lost_frames: int = Field(default=45, ge=1, description="Missed frames in LOST before permanent DELETION")
+
+
+class TrajectoryConfig(BaseModel):
+    """Configuration for trajectory memory and velocity estimation."""
+    max_history_length: int = Field(default=60, ge=5, description="Maximum waypoints stored per track")
+    velocity_smoothing_alpha: float = Field(default=0.3, ge=0.0, le=1.0, description="EMA alpha for velocity filter")
+
+
+class TrackQualityConfig(BaseModel):
+    """Configuration for track quality assessment."""
+    weight_hit_ratio: float = Field(default=0.40, description="Weight for hit/age ratio")
+    weight_confidence: float = Field(default=0.40, description="Weight for smoothed detection confidence")
+    weight_continuity: float = Field(default=0.20, description="Weight for consecutive hit continuity")
+
+
+class TrackingConfig(BaseModel):
+    """Comprehensive configuration for Multi-Target Tracking Subsystem."""
+    enabled: bool = Field(default=True, description="Enable tracking subsystem")
+    association: AssociationConfig = Field(default_factory=AssociationConfig)
+    lifecycle: LifecycleConfig = Field(default_factory=LifecycleConfig)
+    trajectory: TrajectoryConfig = Field(default_factory=TrajectoryConfig)
+    quality: TrackQualityConfig = Field(default_factory=TrackQualityConfig)
+    kalman_process_noise: float = Field(default=1e-2, description="Kalman process noise covariance")
+    kalman_measurement_noise: float = Field(default=1e-1, description="Kalman measurement noise covariance")
+
+
 class SmoothingConfig(BaseModel):
     """Configuration for OneEuro adaptive low-pass filters."""
     center_min_cutoff: float = Field(default=1.0, description="Center position min cutoff frequency")
@@ -93,7 +133,7 @@ class SmoothingConfig(BaseModel):
 
 
 class TrackerConfig(BaseModel):
-    """Configuration for target tracking state machine and Kalman filter."""
+    """Legacy configuration for target tracking state machine and Kalman filter."""
     kalman_process_noise: float = Field(default=1e-2, description="Kalman process noise covariance")
     kalman_measurement_noise: float = Field(default=1e-1, description="Kalman measurement noise covariance")
     max_lost_frames: int = Field(default=45, description="Max missed frames before track is dropped")
@@ -123,6 +163,7 @@ class PipelineConfig(BaseModel):
 class SkyVantaConfig(BaseModel):
     """Master configuration structure for SkyVanta AI."""
     perception: PerceptionConfig = Field(default_factory=PerceptionConfig)
+    tracking: TrackingConfig = Field(default_factory=TrackingConfig)
     detector: DetectorConfig = Field(default_factory=DetectorConfig)
     smoothing: SmoothingConfig = Field(default_factory=SmoothingConfig)
     tracker: TrackerConfig = Field(default_factory=TrackerConfig)
@@ -130,7 +171,7 @@ class SkyVantaConfig(BaseModel):
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
 
     def model_post_init(self, __context) -> None:
-        """Syncs top-level detector settings into perception config if modified."""
+        """Syncs top-level detector and tracker settings."""
         if self.detector != self.perception.detector:
             self.perception.detector = self.detector
 

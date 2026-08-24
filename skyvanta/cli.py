@@ -16,6 +16,12 @@ def build_parser() -> argparse.ArgumentParser:
         description="SkyVanta AI — Autonomous Aerial Perception & Landing Intelligence Platform",
     )
     parser.add_argument(
+        "command",
+        nargs="?",
+        default=None,
+        help="Optional positional command (e.g. 'demo')",
+    )
+    parser.add_argument(
         "-i", "--input",
         type=str,
         default=None,
@@ -69,10 +75,11 @@ def main() -> None:
     try:
         if args.input:
             runner.process_video(args.input, output_path=args.output)
-        elif args.demo or len(sys.argv) == 1:
+        elif args.demo or args.command == "demo" or len(sys.argv) == 1:
             runner.run_demo(output_path=args.output)
         else:
             parser.print_help()
+
     except Exception as e:
         logger.error("Execution failed: %s", e)
         sys.exit(1)

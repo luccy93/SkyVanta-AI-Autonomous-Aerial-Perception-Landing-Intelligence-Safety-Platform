@@ -30,3 +30,23 @@ def test_kalman_predict_correct_cycle():
     # Filter should closely track moving target
     assert pytest.approx(cx, abs=5.0) == 190.0
     assert pytest.approx(cy, abs=5.0) == 100.0
+    vx, vy = kf.current_velocity
+    assert pytest.approx(vx, abs=2.0) == 10.0
+    assert pytest.approx(vy, abs=2.0) == 0.0
+
+
+def test_kalman_noisy_measurement_smoothing():
+    kf = KalmanBox2D(process_noise=1e-3, measurement_noise=1e-1)
+    kf.init(200.0, 200.0, 50.0, 50.0)
+
+    # Apply alternating noisy measurements around stationary point (200, 200)
+    for i in range(20):
+        noise = 10.0 if (i % 2 == 0) else -10.0
+        kf.predict()
+        kf.correct(200.0 + noise, 200.0 + noise, 50.0, 50.0)
+
+    cx, cy, w, h = kf.current_state
+    # Filter estimate should remain centered near 200 despite +-10px oscillations
+    assert abs(cx - 200.0) < 5.0
+    assert abs(cy - 200.0) < 5.0
+

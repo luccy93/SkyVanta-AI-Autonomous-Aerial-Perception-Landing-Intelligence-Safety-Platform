@@ -44,6 +44,28 @@ perception:
     max_box_area_ratio: 0.25
     roi_top_cutoff_ratio: 0.85
 
+tracking:
+  enabled: true
+  kalman_process_noise: 0.01
+  kalman_measurement_noise: 0.10
+  association:
+    min_iou: 0.15
+    max_center_distance_px: 180.0
+    min_scale_ratio: 0.2
+    max_scale_ratio: 5.0
+  lifecycle:
+    min_confirmed_hits: 3
+    max_tentative_misses: 2
+    max_coasting_frames: 15
+    max_lost_frames: 45
+  trajectory:
+    max_history_length: 60
+    velocity_smoothing_alpha: 0.3
+  quality:
+    weight_hit_ratio: 0.40
+    weight_confidence: 0.40
+    weight_continuity: 0.20
+
 smoothing:
   center_min_cutoff: 1.0
   center_beta: 0.015
