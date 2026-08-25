@@ -239,6 +239,40 @@ class SpatialConfig(BaseModel):
     tolerance_det: float = Field(default=1e-4, gt=0.0, description="Numerical tolerance for rotation matrix determinant")
 
 
+class IMUNoiseConfig(BaseModel):
+    """Continuous-time IMU sensor noise and bias random-walk spectral densities."""
+    gyro_noise_density: float = Field(default=0.001, gt=0.0, description="Gyro continuous white noise density in rad/(s*sqrt(Hz))")
+    accel_noise_density: float = Field(default=0.01, gt=0.0, description="Accelerometer continuous white noise density in m/(s^2*sqrt(Hz))")
+    gyro_bias_random_walk: float = Field(default=0.0001, gt=0.0, description="Gyro bias random walk density in rad/(s^2*sqrt(Hz))")
+    accel_bias_random_walk: float = Field(default=0.001, gt=0.0, description="Accelerometer bias random walk density in m/(s^3*sqrt(Hz))")
+
+
+class GravityConfig(BaseModel):
+    """Configurable gravitational vector model in World navigation frame."""
+    magnitude_m_s2: float = Field(default=9.80665, gt=0.0, description="Gravitational acceleration magnitude in m/s²")
+    direction: List[float] = Field(
+        default_factory=lambda: [0.0, 0.0, 1.0],
+        description="Unit vector pointing along gravitational pull in World frame (+Z down in NED)"
+    )
+
+
+class ESEKFConfig(BaseModel):
+    """Master configuration for the 15-State Error-State Extended Kalman Filter."""
+    enabled: bool = Field(default=True, description="Enable ESEKF state estimation")
+    imu_noise: IMUNoiseConfig = Field(default_factory=IMUNoiseConfig)
+    gravity: GravityConfig = Field(default_factory=GravityConfig)
+    gating_threshold_chi2: float = Field(default=16.81, gt=0.0, description="Chi-squared gating threshold (6 DoF, p=0.01 is ~16.81)")
+    max_dt_sec: float = Field(default=0.10, gt=0.0, description="Maximum valid time delta between IMU samples")
+    min_dt_sec: float = Field(default=0.0001, gt=0.0, description="Minimum valid time delta between IMU samples")
+    initial_pos_cov: float = Field(default=1.0, gt=0.0, description="Initial position variance in m²")
+    initial_vel_cov: float = Field(default=0.5, gt=0.0, description="Initial velocity variance in (m/s)²")
+    initial_att_cov: float = Field(default=0.05, gt=0.0, description="Initial attitude variance in rad²")
+    initial_bg_cov: float = Field(default=0.01, gt=0.0, description="Initial gyro bias variance in (rad/s)²")
+    initial_ba_cov: float = Field(default=0.1, gt=0.0, description="Initial accel bias variance in (m/s²)²")
+    visual_pos_noise_std_m: float = Field(default=0.05, gt=0.0, description="Default visual position observation standard deviation in meters")
+    visual_att_noise_std_rad: float = Field(default=0.02, gt=0.0, description="Default visual orientation observation standard deviation in radians")
+
+
 class PipelineConfig(BaseModel):
     """Configuration for end-to-end video pipeline."""
     max_dimension: int = Field(default=1280, description="Max width or height for processing")
@@ -253,11 +287,13 @@ class SkyVantaConfig(BaseModel):
     tracking: TrackingConfig = Field(default_factory=TrackingConfig)
     landing_target: LandingTargetConfig = Field(default_factory=LandingTargetConfig)
     spatial: SpatialConfig = Field(default_factory=SpatialConfig)
+    esekf: ESEKFConfig = Field(default_factory=ESEKFConfig)
     detector: DetectorConfig = Field(default_factory=DetectorConfig)
     smoothing: SmoothingConfig = Field(default_factory=SmoothingConfig)
     tracker: TrackerConfig = Field(default_factory=TrackerConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
+
 
 
 

@@ -66,3 +66,29 @@ class FrameError(SkyVantaError):
     pass
 
 
+class FusionError(SkyVantaError):
+    """Base exception for ESEKF and sensor fusion operations."""
+    pass
+
+
+class NumericalDivergenceError(FusionError):
+    """Raised when covariance or state estimation experiences numerical divergence or NaN/Inf."""
+    pass
+
+
+class GatingError(FusionError):
+    """Raised when measurement innovation fails statistical gating checks."""
+    pass
+
+
+class InitializationError(FusionError):
+    """Raised when ESEKF estimator initialization fails or receives invalid initial parameters."""
+    pass
+
+
+class SensorTimingError(FusionError):
+    """Raised when sensor timestamp ordering, delta-t, or staleness violates timing constraints."""
+    pass
+
+
+

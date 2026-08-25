@@ -431,3 +431,94 @@ class PerceptionResult(BaseModel):
     spatial_localization: Optional[SpatialLocalizationResult] = None
 
 
+class FilterStatus(str, Enum):
+    """Operational status of the Error-State Extended Kalman Filter."""
+    UNINITIALIZED = "UNINITIALIZED"
+    INITIALIZING = "INITIALIZING"
+    INITIALIZED = "INITIALIZED"
+    DEGRADED = "DEGRADED"
+
+
+class IMUMeasurement(BaseModel):
+    """High-rate triaxial inertial measurement unit sample.
+
+    Units:
+        angular_velocity: rad/s in Body frame (+X: forward, +Y: right, +Z: down)
+        linear_acceleration: m/s² in Body frame (including specific force reaction)
+    """
+    timestamp_sec: float = Field(..., gt=0.0, description="Measurement capture timestamp in seconds")
+    angular_velocity_rad_s: Tuple[float, float, float] = Field(..., description="Angular velocity [wx, wy, wz] in rad/s")
+    linear_acceleration_m_s2: Tuple[float, float, float] = Field(..., description="Linear acceleration [ax, ay, az] in m/s²")
+    frame_id: FrameId = Field(default=FrameId.BODY, description="Coordinate frame of the IMU sensor")
+
+
+class VisualPoseMeasurement(BaseModel):
+    """Discrete 6-DoF visual pose observation expressed in World/Navigation frame."""
+    timestamp_sec: float = Field(..., gt=0.0, description="Observation capture timestamp in seconds")
+    position_m: Tuple[float, float, float] = Field(..., description="Observed 3D position [x, y, z] in meters")
+    rotation_matrix: List[List[float]] = Field(..., description="3x3 orthonormal rotation matrix R_WB")
+    quaternion: Tuple[float, float, float, float] = Field(..., description="Unit quaternion [qw, qx, qy, qz]")
+    frame_id: FrameId = Field(default=FrameId.WORLD, description="Reference coordinate frame of measurement")
+    covariance: Optional[List[List[float]]] = Field(default=None, description="6x6 measurement noise covariance matrix [pos(3), rot(3)]")
+    quality: float = Field(default=1.0, ge=0.0, le=1.0, description="Visual pose quality score")
+    source: str = Field(default="visual_pnp", description="Measurement provenance")
+    target_id: int = Field(default=0, description="Associated fiducial or landing target ID")
+
+
+class NominalState(BaseModel):
+    """15-DoF continuous physical nominal state of the drone platform.
+
+    State variables:
+        p: position in World navigation frame (meters)
+        v: linear velocity in World navigation frame (m/s)
+        R: 3x3 orientation rotation matrix mapping Body -> World in SO(3)
+        b_g: gyroscope bias in Body frame (rad/s)
+        b_a: accelerometer bias in Body frame (m/s²)
+    """
+    timestamp_sec: float = Field(default=0.0, description="State estimate timestamp in seconds")
+    position_world: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="World position [x, y, z] in meters")
+    velocity_world: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="World velocity [vx, vy, vz] in m/s")
+    rotation_matrix: List[List[float]] = Field(
+        default_factory=lambda: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+        description="3x3 orthonormal rotation matrix R_WB in SO(3)"
+    )
+    quaternion: Tuple[float, float, float, float] = Field(default=(1.0, 0.0, 0.0, 0.0), description="Unit quaternion [qw, qx, qy, qz]")
+    euler_deg: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Tait-Bryan Euler angles [roll, pitch, yaw] in degrees")
+    gyro_bias: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Estimated gyro bias [bgx, bgy, bgz] in rad/s")
+    accel_bias: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Estimated accel bias [bax, bay, baz] in m/s²")
+    frame_id: FrameId = Field(default=FrameId.WORLD, description="Reference navigation coordinate frame")
+    status: FilterStatus = Field(default=FilterStatus.UNINITIALIZED, description="Current filter operational status")
+
+
+class ErrorState(BaseModel):
+    """15-dimensional error state vector delta_x = [delta_p, delta_v, delta_theta, delta_bg, delta_ba]^T."""
+    delta_p: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Position error in meters")
+    delta_v: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Velocity error in m/s")
+    delta_theta: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Attitude rotation error vector in radians")
+    delta_bg: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Gyro bias error in rad/s")
+    delta_ba: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Accel bias error in m/s²")
+
+
+class ESEKFDiagnostics(BaseModel):
+    """Real-time observability and numerical health diagnostics for ESEKF."""
+    propagation_count: int = Field(default=0, description="Total number of IMU propagation steps executed")
+    visual_update_count: int = Field(default=0, description="Total number of visual measurement updates accepted")
+    rejected_measurement_count: int = Field(default=0, description="Total number of visual measurements rejected by gating")
+    last_nis: float = Field(default=0.0, description="Normalized Innovation Squared (NIS) of last measurement")
+    covariance_trace: float = Field(default=0.0, description="Matrix trace of the 15x15 error covariance P")
+    position_uncertainty_m: float = Field(default=0.0, description="3-sigma position uncertainty in meters")
+    velocity_uncertainty_m_s: float = Field(default=0.0, description="3-sigma velocity uncertainty in m/s")
+    orientation_uncertainty_deg: float = Field(default=0.0, description="3-sigma orientation uncertainty in degrees")
+    processing_latency_ms: float = Field(default=0.0, description="Execution duration of last filter step in milliseconds")
+    last_rejection_reason: Optional[str] = Field(default=None, description="Diagnostic reason if last measurement was rejected")
+
+
+class ESEKFStateResult(BaseModel):
+    """Complete output of the 15-state ESEKF sensor fusion engine."""
+    nominal_state: NominalState
+    covariance_diagonal: List[float] = Field(default_factory=list, description="15 diagonal variances of error covariance P")
+    diagnostics: ESEKFDiagnostics = Field(default_factory=ESEKFDiagnostics)
+    is_valid: bool = Field(default=True)
+
+
+
