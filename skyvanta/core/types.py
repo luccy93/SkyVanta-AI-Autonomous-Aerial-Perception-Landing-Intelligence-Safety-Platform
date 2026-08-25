@@ -628,5 +628,106 @@ class LandingDecision(BaseModel):
     diagnostics: Dict[str, Any] = Field(default_factory=dict, description="Subsystem health and timing telemetry")
 
 
+class FlightCommandType(str, Enum):
+    """High-level flight directive types issued to an external or mock autopilot."""
+    HOLD = "HOLD"
+    SEARCH = "SEARCH"
+    ALIGN = "ALIGN"
+    APPROACH = "APPROACH"
+    DESCEND = "DESCEND"
+    FINAL_APPROACH = "FINAL_APPROACH"
+    CONFIRM_LANDING = "CONFIRM_LANDING"
+    ABORT = "ABORT"
+    RECOVER = "RECOVER"
+    DISARM = "DISARM"
+
+
+class CommandSource(str, Enum):
+    """Provenance and authority origin of a flight command."""
+    LANDING_INTELLIGENCE = "LANDING_INTELLIGENCE"
+    SAFETY_SUPERVISOR = "SAFETY_SUPERVISOR"
+    OPERATOR = "OPERATOR"
+    SIMULATOR = "SIMULATOR"
+    TEST = "TEST"
+
+
+class CommandStatus(str, Enum):
+    """Lifecycle tracking states of a flight command and acknowledgement."""
+    CREATED = "CREATED"
+    VALIDATED = "VALIDATED"
+    AUTHORIZED = "AUTHORIZED"
+    SENT = "SENT"
+    ACKNOWLEDGED = "ACKNOWLEDGED"
+    ACCEPTED = "ACCEPTED"
+    BUSY = "BUSY"
+    INVALID = "INVALID"
+    UNSAFE = "UNSAFE"
+    EXECUTING = "EXECUTING"
+    COMPLETED = "COMPLETED"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
+    TIMEOUT = "TIMEOUT"
+    CANCELLED = "CANCELLED"
+    FAILED = "FAILED"
+
+
+
+class FlightMode(str, Enum):
+    """High-level operating mode of the connected autopilot or vehicle."""
+    DISCONNECTED = "DISCONNECTED"
+    STANDBY = "STANDBY"
+    GUIDED = "GUIDED"
+    LANDING = "LANDING"
+    ABORT = "ABORT"
+    FAILSAFE = "FAILSAFE"
+
+
+class AutopilotHealthStatus(str, Enum):
+    """Connection and telemetry operational status of the autopilot."""
+    HEALTHY = "HEALTHY"
+    DEGRADED = "DEGRADED"
+    DISCONNECTED = "DISCONNECTED"
+    FAULT = "FAULT"
+
+
+class FlightCommand(BaseModel):
+    """High-level, strongly-typed flight command sent through the flight interface."""
+    command_id: str = Field(..., description="Unique alphanumeric command identifier (e.g. CMD_000100)")
+    sequence_number: int = Field(..., ge=0, description="Strictly monotonically increasing sequence index")
+    timestamp_sec: float = Field(..., gt=0.0, description="Creation timestamp in seconds")
+    expiration_sec: float = Field(..., gt=0.0, description="Timestamp beyond which the command is void")
+    command_type: FlightCommandType = Field(..., description="Type of supervisory flight directive")
+    source: CommandSource = Field(default=CommandSource.LANDING_INTELLIGENCE, description="Originating subsystem")
+    target_id: Optional[int] = Field(default=None, description="Associated fiducial or landing target ID")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Command parameters (e.g. target altitude, descent rate)")
+    is_valid: bool = Field(default=True, description="Whether command passed all structural and temporal validation")
+    rejection_reason: Optional[str] = Field(default=None, description="Reason if command was rejected or invalidated")
+
+
+class CommandAcknowledgement(BaseModel):
+    """Formal acknowledgement returned by the autopilot upon receiving a flight command."""
+    command_id: str = Field(..., description="Referenced command identifier")
+    sequence_number: int = Field(..., ge=0, description="Referenced command sequence index")
+    status: CommandStatus = Field(..., description="Acceptance or execution status")
+    timestamp_sec: float = Field(..., gt=0.0, description="Acknowledgement generation timestamp")
+    reason: Optional[str] = Field(default=None, description="Diagnostic message or rejection reason")
+    autopilot_state: Optional[Dict[str, Any]] = Field(default=None, description="Autopilot state snapshot at acknowledgement")
+
+
+class AutopilotTelemetry(BaseModel):
+    """Simulated or external autopilot vehicle state telemetry."""
+    timestamp_sec: float = Field(..., gt=0.0, description="Telemetry sample timestamp in seconds")
+    is_connected: bool = Field(default=True, description="Whether autopilot telemetry link is active")
+    is_armed: bool = Field(default=False, description="Whether drone motors are armed")
+    flight_mode: FlightMode = Field(default=FlightMode.STANDBY, description="Current autopilot flight mode")
+    position_m: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Estimated position [x, y, z] in meters")
+    velocity_mps: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Estimated velocity [vx, vy, vz] in m/s")
+    orientation_rpy_deg: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Attitude [roll, pitch, yaw] in degrees")
+    altitude_m: float = Field(default=0.0, description="Altitude above landing pad or ground plane in meters")
+    frame_id: FrameId = Field(default=FrameId.WORLD, description="Coordinate frame of the telemetry position")
+    is_simulation: bool = Field(default=True, description="Explicit flag declaring whether data is simulated")
+
+
+
 
 

@@ -111,5 +111,36 @@ class SafetyInvariantViolationError(IntelligenceError):
     pass
 
 
+class FlightInterfaceError(SkyVantaError):
+    """Base exception for flight interface, command validation, and autopilot operations."""
+    pass
+
+
+class CommandValidationError(FlightInterfaceError):
+    """Raised when a flight command fails structural, temporal, or parameter validation."""
+    pass
+
+
+class CommandAuthorizationError(FlightInterfaceError):
+    """Raised when a command fails safety supervisor authorization or violates flight mode rules."""
+    pass
+
+
+class AutopilotDisconnectedError(FlightInterfaceError):
+    """Raised when an operation requires an active autopilot connection but the link is down."""
+    pass
+
+
+class CommandTimeoutError(FlightInterfaceError):
+    """Raised when command acknowledgement or execution exceeds configured timeout thresholds."""
+    pass
+
+
+class RateLimitExceededError(FlightInterfaceError):
+    """Raised when command transmission frequency exceeds allowable rate limits."""
+    pass
+
+
+
 
 

@@ -341,6 +341,35 @@ class LandingIntelligenceConfig(BaseModel):
     hysteresis: HysteresisConfig = Field(default_factory=HysteresisConfig)
 
 
+class CommandConfig(BaseModel):
+    """Command timing, validity, and execution constraints in seconds."""
+    expiry_sec: float = Field(default=0.5, gt=0.0, description="Validity lifespan of a flight command before expiration")
+    ack_timeout_sec: float = Field(default=0.5, gt=0.0, description="Max duration to wait for autopilot acknowledgement")
+    execution_timeout_sec: float = Field(default=5.0, gt=0.0, description="Max duration for autopilot to report command completion")
+    min_interval_sec: float = Field(default=0.05, gt=0.0, description="Minimum allowable time between sequential commands (rate limit)")
+
+
+class HeartbeatConfig(BaseModel):
+    """Autopilot heartbeat transmission and loss watchdog parameters."""
+    expected_interval_sec: float = Field(default=1.0, gt=0.0, description="Expected periodic heartbeat interval")
+    timeout_sec: float = Field(default=2.5, gt=0.0, description="Duration without heartbeat before declaring connection lost")
+
+
+class FlightSafetyPolicyConfig(BaseModel):
+    """Safety gates and execution boundaries governing command transmission."""
+    require_v7_authorization: bool = Field(default=True, description="Strict requirement that commands originate from an authorized V7 decision")
+    require_fresh_decision: bool = Field(default=True, description="Enforce maximum decision age before command translation")
+    allow_external: bool = Field(default=False, description="Explicit multi-layer safety gate: True permits non-simulation transport")
+
+
+class FlightInterfaceConfig(BaseModel):
+    """Master configuration for Volume 8 Flight Interface and Autopilot Integration."""
+    mode: str = Field(default="simulation", description="Operational flight interface mode: simulation, disabled, external")
+    command: CommandConfig = Field(default_factory=CommandConfig)
+    heartbeat: HeartbeatConfig = Field(default_factory=HeartbeatConfig)
+    safety: FlightSafetyPolicyConfig = Field(default_factory=FlightSafetyPolicyConfig)
+
+
 class PipelineConfig(BaseModel):
     """Configuration for end-to-end video pipeline."""
     max_dimension: int = Field(default=1280, description="Max width or height for processing")
@@ -357,11 +386,13 @@ class SkyVantaConfig(BaseModel):
     spatial: SpatialConfig = Field(default_factory=SpatialConfig)
     esekf: ESEKFConfig = Field(default_factory=ESEKFConfig)
     intelligence: LandingIntelligenceConfig = Field(default_factory=LandingIntelligenceConfig)
+    flight_interface: FlightInterfaceConfig = Field(default_factory=FlightInterfaceConfig)
     detector: DetectorConfig = Field(default_factory=DetectorConfig)
     smoothing: SmoothingConfig = Field(default_factory=SmoothingConfig)
     tracker: TrackerConfig = Field(default_factory=TrackerConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
+
 
 
 

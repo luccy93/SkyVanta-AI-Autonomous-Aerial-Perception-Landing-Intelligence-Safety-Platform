@@ -207,3 +207,19 @@ pipeline:
   default_fps: 30.0
   output_dir: "output"
   demo_duration_sec: 13.0
+
+flight_interface:
+  mode: "simulation"
+  command:
+    expiry_sec: 0.5
+    ack_timeout_sec: 0.5
+    execution_timeout_sec: 5.0
+    min_interval_sec: 0.05
+  heartbeat:
+    expected_interval_sec: 1.0
+    timeout_sec: 2.5
+  safety:
+    require_v7_authorization: true
+    require_fresh_decision: true
+    allow_external: false
+
