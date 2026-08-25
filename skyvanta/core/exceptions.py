@@ -141,6 +141,22 @@ class RateLimitExceededError(FlightInterfaceError):
     pass
 
 
+class SimulationError(SkyVantaError):
+    """Base exception for digital twin, scenario execution, and simulation engine errors."""
+    pass
+
+
+class ScenarioExecutionError(SimulationError):
+    """Raised when scenario setup, execution, or validation invariants fail."""
+    pass
+
+
+class DigitalTwinDynamicsError(SimulationError):
+    """Raised when physical integration, wind perturbation, or vehicle kinematics diverge."""
+    pass
+
+
+
 
 
 

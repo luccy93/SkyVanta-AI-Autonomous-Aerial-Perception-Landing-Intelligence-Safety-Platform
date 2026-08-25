@@ -270,6 +270,11 @@ class TrackInfo(BaseModel):
     center: Optional[Tuple[float, float]] = None
     size: Optional[Tuple[float, float]] = None
 
+    @property
+    def is_valid(self) -> bool:
+        """Determines if the track snapshot represents a valid, active target."""
+        return self.is_visible and (self.bbox is None or self.bbox.is_valid()) and self.confidence >= 0.2
+
 
 class PerceptionFrameResult(BaseModel):
     """Comprehensive perception subsystem output for a single frame."""
@@ -694,7 +699,7 @@ class FlightCommand(BaseModel):
     """High-level, strongly-typed flight command sent through the flight interface."""
     command_id: str = Field(..., description="Unique alphanumeric command identifier (e.g. CMD_000100)")
     sequence_number: int = Field(..., ge=0, description="Strictly monotonically increasing sequence index")
-    timestamp_sec: float = Field(..., gt=0.0, description="Creation timestamp in seconds")
+    timestamp_sec: float = Field(..., ge=0.0, description="Creation timestamp in seconds")
     expiration_sec: float = Field(..., gt=0.0, description="Timestamp beyond which the command is void")
     command_type: FlightCommandType = Field(..., description="Type of supervisory flight directive")
     source: CommandSource = Field(default=CommandSource.LANDING_INTELLIGENCE, description="Originating subsystem")
@@ -709,14 +714,14 @@ class CommandAcknowledgement(BaseModel):
     command_id: str = Field(..., description="Referenced command identifier")
     sequence_number: int = Field(..., ge=0, description="Referenced command sequence index")
     status: CommandStatus = Field(..., description="Acceptance or execution status")
-    timestamp_sec: float = Field(..., gt=0.0, description="Acknowledgement generation timestamp")
+    timestamp_sec: float = Field(..., ge=0.0, description="Acknowledgement generation timestamp")
     reason: Optional[str] = Field(default=None, description="Diagnostic message or rejection reason")
     autopilot_state: Optional[Dict[str, Any]] = Field(default=None, description="Autopilot state snapshot at acknowledgement")
 
 
 class AutopilotTelemetry(BaseModel):
     """Simulated or external autopilot vehicle state telemetry."""
-    timestamp_sec: float = Field(..., gt=0.0, description="Telemetry sample timestamp in seconds")
+    timestamp_sec: float = Field(..., ge=0.0, description="Telemetry sample timestamp in seconds")
     is_connected: bool = Field(default=True, description="Whether autopilot telemetry link is active")
     is_armed: bool = Field(default=False, description="Whether drone motors are armed")
     flight_mode: FlightMode = Field(default=FlightMode.STANDBY, description="Current autopilot flight mode")
@@ -726,6 +731,148 @@ class AutopilotTelemetry(BaseModel):
     altitude_m: float = Field(default=0.0, description="Altitude above landing pad or ground plane in meters")
     frame_id: FrameId = Field(default=FrameId.WORLD, description="Coordinate frame of the telemetry position")
     is_simulation: bool = Field(default=True, description="Explicit flag declaring whether data is simulated")
+
+
+class ScenarioOutcome(str, Enum):
+    """Overall qualitative result of a simulated landing scenario."""
+    SUCCESS_LANDED = "SUCCESS_LANDED"
+    SUCCESS_ABORTED = "SUCCESS_ABORTED"
+    SUCCESS_RECOVERED = "SUCCESS_RECOVERED"
+    FAILED_CRASH = "FAILED_CRASH"
+    FAILED_TIMEOUT = "FAILED_TIMEOUT"
+    FAILED_UNAUTHORIZED_COMMAND = "FAILED_UNAUTHORIZED_COMMAND"
+    FAILED_SAFETY_VIOLATION = "FAILED_SAFETY_VIOLATION"
+
+
+class SafetyViolation(str, Enum):
+    """Specific safety violation classes detected during simulation."""
+    NONE = "NONE"
+    DESCENT_WITH_STALE_TARGET = "DESCENT_WITH_STALE_TARGET"
+    DESCENT_WITH_HIGH_UNCERTAINTY = "DESCENT_WITH_HIGH_UNCERTAINTY"
+    LANDING_WITH_HIGH_VELOCITY = "LANDING_WITH_HIGH_VELOCITY"
+    COMMAND_AFTER_AUTOPILOT_LOSS = "COMMAND_AFTER_AUTOPILOT_LOSS"
+    STALE_COMMAND_EXECUTION = "STALE_COMMAND_EXECUTION"
+    INVALID_TELEMETRY_ACCEPTED = "INVALID_TELEMETRY_ACCEPTED"
+    UNAUTHORIZED_COMMAND = "UNAUTHORIZED_COMMAND"
+    INVALID_STATE_TRANSITION = "INVALID_STATE_TRANSITION"
+    LATERAL_DIVERGENCE_DESCENT = "LATERAL_DIVERGENCE_DESCENT"
+    ATTITUDE_EXCEEDANCE = "ATTITUDE_EXCEEDANCE"
+
+
+class SafetyViolationRecord(BaseModel):
+    """Detailed record of an observed safety violation event."""
+    violation_type: SafetyViolation = Field(..., description="Type of detected safety violation")
+    timestamp_sec: float = Field(..., description="Simulation timestamp when violation occurred")
+    message: str = Field(..., description="Human-readable violation explanation")
+    details: Dict[str, Any] = Field(default_factory=dict, description="Contextual state snapshot and telemetry")
+
+
+class ScenarioEventType(str, Enum):
+    """Discrete time-scheduled perturbation and fault event types."""
+    TARGET_OCCLUDE = "TARGET_OCCLUDE"
+    TARGET_DISAPPEAR = "TARGET_DISAPPEAR"
+    TARGET_REAPPEAR = "TARGET_REAPPEAR"
+    CAMERA_DROPOUT = "CAMERA_DROPOUT"
+    IMU_DROPOUT = "IMU_DROPOUT"
+    POSE_DROPOUT = "POSE_DROPOUT"
+    AUTOPILOT_DISCONNECT = "AUTOPILOT_DISCONNECT"
+    WIND_DISTURBANCE = "WIND_DISTURBANCE"
+    VELOCITY_SPIKE = "VELOCITY_SPIKE"
+    ESTIMATOR_DEGRADE = "ESTIMATOR_DEGRADE"
+    RESET_FAULT = "RESET_FAULT"
+
+
+class ScenarioEvent(BaseModel):
+    """Scheduled temporal event for fault, perturbation, or environmental change."""
+    event_id: str = Field(..., description="Unique event identifier")
+    timestamp_sec: float = Field(..., ge=0.0, description="Simulation timestamp when event triggers")
+    event_type: ScenarioEventType = Field(..., description="Type of scenario event")
+    duration_sec: float = Field(default=0.0, ge=0.0, description="Active duration of the event in seconds (0 = instantaneous)")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Event-specific payload parameters")
+
+
+class DigitalTwinState(BaseModel):
+    """Complete strongly-typed software representation of the vehicle, sensors, and pipeline state."""
+    timestamp_sec: float = Field(..., description="Current simulation epoch timestamp in seconds")
+    position_world: Tuple[float, float, float] = Field(..., description="Ground truth vehicle position [x, y, z] in WORLD frame (meters)")
+    velocity_world: Tuple[float, float, float] = Field(..., description="Ground truth vehicle velocity [vx, vy, vz] in WORLD frame (m/s)")
+    acceleration_world: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Ground truth linear acceleration [ax, ay, az] in m/s²")
+    rotation_matrix: List[List[float]] = Field(..., description="3x3 orthonormal rotation matrix R_WB in SO(3)")
+    quaternion: Tuple[float, float, float, float] = Field(default=(1.0, 0.0, 0.0, 0.0), description="Unit quaternion [qw, qx, qy, qz]")
+    euler_deg: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Euler angles [roll, pitch, yaw] in degrees")
+    angular_velocity_body: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Body angular velocity [wx, wy, wz] in rad/s")
+    landing_target_state: Optional[Dict[str, Any]] = Field(default=None, description="Current ground truth landing target state")
+    camera_state: Optional[Dict[str, Any]] = Field(default=None, description="Camera sensor operational state snapshot")
+    imu_state: Optional[Dict[str, Any]] = Field(default=None, description="IMU sensor operational state snapshot")
+    estimator_state: Optional[Dict[str, Any]] = Field(default=None, description="ESEKF fused state estimate snapshot")
+    landing_phase: Optional[LandingPhase] = Field(default=None, description="Landing Intelligence active state machine phase")
+    autopilot_state: Optional[Dict[str, Any]] = Field(default=None, description="Autopilot subsystem state snapshot")
+    is_landed: bool = Field(default=False, description="Whether vehicle has touched down safely on the landing target")
+
+
+class TwinVehicleState(BaseModel):
+    """Ground truth continuous 6-DoF vehicle state in the Digital Twin physics engine."""
+    timestamp_sec: float = Field(..., description="Simulation epoch timestamp in seconds")
+    position_world: Tuple[float, float, float] = Field(..., description="Ground truth position in WORLD frame [x, y, z] (meters)")
+    velocity_world: Tuple[float, float, float] = Field(..., description="Ground truth velocity in WORLD frame [vx, vy, vz] (m/s)")
+    rotation_matrix: List[List[float]] = Field(..., description="3x3 rotation matrix R_world_to_body")
+    euler_deg: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Euler angles [roll, pitch, yaw] in degrees")
+    angular_velocity_rad_s: Tuple[float, float, float] = Field(default=(0.0, 0.0, 0.0), description="Body angular velocity [wx, wy, wz] (rad/s)")
+    is_landed: bool = Field(default=False, description="Whether vehicle has touched down safely on landing pad")
+
+
+class ScenarioMetrics(BaseModel):
+    """Consolidated quantitative performance evaluation of a simulated scenario."""
+    scenario_name: str = Field(..., description="Name of evaluated scenario")
+    outcome: ScenarioOutcome = Field(..., description="Qualitative scenario outcome classification")
+    duration_sec: float = Field(..., description="Total scenario execution time in seconds")
+    final_position_error_m: float = Field(default=0.0, description="Final position error relative to pad center (meters)")
+    final_velocity_mps: float = Field(default=0.0, description="Touchdown descent velocity (m/s)")
+    max_estimation_error_m: float = Field(default=0.0, description="Peak estimation error |p_true - p_est| (meters)")
+    rmse_position_m: float = Field(default=0.0, description="Root mean square estimation error (meters)")
+    nees_consistency_fraction: float = Field(default=1.0, description="Fraction of time state estimation was within 3-sigma bounds")
+    commands_dispatched: int = Field(default=0, description="Total number of flight commands issued")
+    phase_transitions: List[str] = Field(default_factory=list, description="Sequence of landing phase transitions")
+    success: bool = Field(default=True, description="Whether scenario satisfied all mission pass criteria")
+
+
+class ExperimentResult(BaseModel):
+    """Complete summary and quantitative metrics from an individual scenario execution run."""
+    scenario_id: str = Field(..., description="Unique scenario identifier")
+    run_id: str = Field(..., description="Unique run execution ID (e.g. run_0001_seed_42)")
+    seed: int = Field(..., description="Random seed used for deterministic execution")
+    status: ScenarioOutcome = Field(..., description="Outcome classification of the experiment")
+    duration_sec: float = Field(..., description="Simulated duration in seconds")
+    final_state: DigitalTwinState = Field(..., description="Final vehicle and pipeline state snapshot")
+    landing_confirmed: bool = Field(default=False, description="Whether touchdown was confirmed safely")
+    abort_triggered: bool = Field(default=False, description="Whether safety abort was triggered")
+    safety_violations: List[SafetyViolationRecord] = Field(default_factory=list, description="All detected safety violations")
+    metrics: ScenarioMetrics = Field(..., description="Quantitative metric evaluation")
+    event_count: int = Field(default=0, description="Number of scenario events executed")
+    command_count: int = Field(default=0, description="Number of flight commands issued")
+    failure_reason: Optional[str] = Field(default=None, description="Diagnostic message if scenario failed")
+    config_hash: str = Field(default="", description="Deterministic configuration fingerprint hash")
+
+
+class ExperimentStatistics(BaseModel):
+    """Aggregate statistical metrics computed over a Monte Carlo experiment batch."""
+    total_runs: int = Field(..., ge=0, description="Total number of Monte Carlo runs executed")
+    success_rate: float = Field(..., ge=0.0, le=1.0, description="Fraction of runs achieving expected outcome")
+    abort_rate: float = Field(..., ge=0.0, le=1.0, description="Fraction of runs triggering safe abort")
+    fault_rate: float = Field(..., ge=0.0, le=1.0, description="Fraction of runs entering fault state")
+    recovery_rate: float = Field(..., ge=0.0, le=1.0, description="Fraction of transient fault runs successfully recovering")
+    mean_position_rmse: float = Field(default=0.0, description="Mean RMSE position estimation error across runs (meters)")
+    median_position_rmse: float = Field(default=0.0, description="Median RMSE position estimation error (meters)")
+    p95_position_error: float = Field(default=0.0, description="95th percentile peak position error (meters)")
+    p99_position_error: float = Field(default=0.0, description="99th percentile peak position error (meters)")
+    mean_velocity_error: float = Field(default=0.0, description="Mean velocity estimation error (m/s)")
+    p95_velocity_error: float = Field(default=0.0, description="95th percentile velocity error (m/s)")
+    max_uncertainty_m: float = Field(default=0.0, description="Maximum observed 3-sigma position uncertainty (meters)")
+    mean_landing_time_sec: float = Field(default=0.0, description="Mean duration to touchdown for successful landings")
+    p95_landing_time_sec: float = Field(default=0.0, description="95th percentile duration to touchdown (seconds)")
+    total_safety_violations: int = Field(default=0, description="Total safety violation events across all runs")
+
+
 
 
 
