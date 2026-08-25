@@ -273,6 +273,74 @@ class ESEKFConfig(BaseModel):
     visual_att_noise_std_rad: float = Field(default=0.02, gt=0.0, description="Default visual orientation observation standard deviation in radians")
 
 
+class FreshnessConfig(BaseModel):
+    """Maximum allowable age (staleness) for safety-critical subsystem data in seconds."""
+    max_target_age_sec: float = Field(default=0.5, gt=0.0, description="Max target track age before declared STALE")
+    max_pose_age_sec: float = Field(default=0.5, gt=0.0, description="Max visual pose age before declared STALE")
+    max_estimator_age_sec: float = Field(default=0.5, gt=0.0, description="Max ESEKF update age before declared STALE")
+
+
+class AlignmentSafetyConfig(BaseModel):
+    """Geometric alignment safety thresholds (engineering reference values, not certified limits)."""
+    max_lateral_error_m: float = Field(default=1.5, gt=0.0, description="Max lateral deviation for alignment in meters")
+    max_longitudinal_error_m: float = Field(default=1.5, gt=0.0, description="Max longitudinal deviation for alignment in meters")
+    max_yaw_error_deg: float = Field(default=15.0, gt=0.0, description="Max relative heading error in degrees")
+    final_lateral_error_m: float = Field(default=0.3, gt=0.0, description="Max lateral deviation for final approach in meters")
+    final_yaw_error_deg: float = Field(default=5.0, gt=0.0, description="Max relative heading error for final approach in degrees")
+
+
+class VelocitySafetyConfig(BaseModel):
+    """Kinematic velocity limits (engineering reference values, not certified limits)."""
+    max_horizontal_speed_mps: float = Field(default=2.0, gt=0.0, description="Max horizontal speed for descent in m/s")
+    max_descent_speed_mps: float = Field(default=1.0, gt=0.0, description="Max vertical descent rate in m/s")
+    final_horizontal_speed_mps: float = Field(default=0.5, gt=0.0, description="Max horizontal speed for final approach in m/s")
+    final_descent_speed_mps: float = Field(default=0.3, gt=0.0, description="Max descent rate for final touchdown in m/s")
+
+
+class UncertaintySafetyConfig(BaseModel):
+    """Maximum allowable 3-sigma statistical uncertainties."""
+    sigma_multiplier: float = Field(default=3.0, gt=0.0, description="Confidence interval multiplier (3.0 = 99.73%)")
+    max_position_3sigma_m: float = Field(default=0.5, gt=0.0, description="Max 3-sigma position uncertainty in meters")
+    max_velocity_3sigma_mps: float = Field(default=0.5, gt=0.0, description="Max 3-sigma velocity uncertainty in m/s")
+    max_orientation_3sigma_deg: float = Field(default=5.0, gt=0.0, description="Max 3-sigma orientation uncertainty in degrees")
+    final_position_3sigma_m: float = Field(default=0.2, gt=0.0, description="Max 3-sigma position uncertainty for final approach in meters")
+
+
+class ConfirmationConfig(BaseModel):
+    """Temporal persistence criteria required for landing confirmation."""
+    required_persistence_frames: int = Field(default=10, ge=2, description="Consecutive frames satisfying touchdown criteria")
+    required_duration_sec: float = Field(default=0.3, ge=0.1, description="Minimum duration satisfying touchdown criteria in seconds")
+    max_touchdown_altitude_m: float = Field(default=0.3, gt=0.0, description="Max vertical target offset for landing confirmation")
+    max_touchdown_velocity_mps: float = Field(default=0.2, gt=0.0, description="Max vertical velocity for landing confirmation")
+
+
+class StateTimeoutsConfig(BaseModel):
+    """Phase duration limits before triggering safety abort or recovery."""
+    search_timeout_sec: float = Field(default=30.0, gt=0.0, description="Max search duration before timeout")
+    alignment_timeout_sec: float = Field(default=20.0, gt=0.0, description="Max alignment duration before abort")
+    approach_timeout_sec: float = Field(default=20.0, gt=0.0, description="Max approach duration before abort")
+    descent_timeout_sec: float = Field(default=30.0, gt=0.0, description="Max descent duration before abort")
+    recovery_timeout_sec: float = Field(default=10.0, gt=0.0, description="Max recovery duration before fault")
+
+
+class HysteresisConfig(BaseModel):
+    """State transition margins to prevent rapid state cycling."""
+    alignment_margin_m: float = Field(default=0.2, ge=0.0, description="Lateral/longitudinal hysteresis margin in meters")
+    velocity_margin_mps: float = Field(default=0.1, ge=0.0, description="Velocity hysteresis margin in m/s")
+
+
+class LandingIntelligenceConfig(BaseModel):
+    """Master configuration for Volume 7 Landing Intelligence and Safety Supervisor."""
+    enabled: bool = Field(default=True, description="Enable landing intelligence supervision")
+    freshness: FreshnessConfig = Field(default_factory=FreshnessConfig)
+    alignment: AlignmentSafetyConfig = Field(default_factory=AlignmentSafetyConfig)
+    velocity: VelocitySafetyConfig = Field(default_factory=VelocitySafetyConfig)
+    uncertainty: UncertaintySafetyConfig = Field(default_factory=UncertaintySafetyConfig)
+    confirmation: ConfirmationConfig = Field(default_factory=ConfirmationConfig)
+    timeouts: StateTimeoutsConfig = Field(default_factory=StateTimeoutsConfig)
+    hysteresis: HysteresisConfig = Field(default_factory=HysteresisConfig)
+
+
 class PipelineConfig(BaseModel):
     """Configuration for end-to-end video pipeline."""
     max_dimension: int = Field(default=1280, description="Max width or height for processing")
@@ -288,11 +356,13 @@ class SkyVantaConfig(BaseModel):
     landing_target: LandingTargetConfig = Field(default_factory=LandingTargetConfig)
     spatial: SpatialConfig = Field(default_factory=SpatialConfig)
     esekf: ESEKFConfig = Field(default_factory=ESEKFConfig)
+    intelligence: LandingIntelligenceConfig = Field(default_factory=LandingIntelligenceConfig)
     detector: DetectorConfig = Field(default_factory=DetectorConfig)
     smoothing: SmoothingConfig = Field(default_factory=SmoothingConfig)
     tracker: TrackerConfig = Field(default_factory=TrackerConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
+
 
 
 

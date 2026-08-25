@@ -521,4 +521,112 @@ class ESEKFStateResult(BaseModel):
     is_valid: bool = Field(default=True)
 
 
+class LandingPhase(str, Enum):
+    """Operational phase in the autonomous landing intelligence state machine."""
+    IDLE = "IDLE"
+    SEARCHING = "SEARCHING"
+    TARGET_ACQUIRED = "TARGET_ACQUIRED"
+    ALIGNING = "ALIGNING"
+    APPROACHING = "APPROACHING"
+    DESCENDING = "DESCENDING"
+    FINAL_APPROACH = "FINAL_APPROACH"
+    LANDING_CONFIRMED = "LANDING_CONFIRMED"
+    ABORTING = "ABORTING"
+    RECOVERY = "RECOVERY"
+    FAULT = "FAULT"
+
+
+class RecommendedAction(str, Enum):
+    """Recommended decision output from the Landing Intelligence Engine."""
+    HOLD = "HOLD"
+    SEARCH = "SEARCH"
+    ALIGN = "ALIGN"
+    APPROACH = "APPROACH"
+    CONTINUE_DESCENT = "CONTINUE_DESCENT"
+    FINAL_APPROACH = "FINAL_APPROACH"
+    CONFIRM_LANDING = "CONFIRM_LANDING"
+    ABORT = "ABORT"
+    RECOVER = "RECOVER"
+    FAULT = "FAULT"
+
+
+class SafetyReasonCode(str, Enum):
+    """Strongly typed machine-readable reason codes explaining safety evaluations."""
+    NONE = "NONE"
+    NOMINAL_CONDITIONS = "NOMINAL_CONDITIONS"
+    TARGET_NOT_FOUND = "TARGET_NOT_FOUND"
+    TARGET_LOST = "TARGET_LOST"
+    TARGET_STALE = "TARGET_STALE"
+    POSE_INVALID = "POSE_INVALID"
+    POSE_STALE = "POSE_STALE"
+    REPROJECTION_ERROR_HIGH = "REPROJECTION_ERROR_HIGH"
+    TRACK_UNSTABLE = "TRACK_UNSTABLE"
+    ESTIMATOR_UNINITIALIZED = "ESTIMATOR_UNINITIALIZED"
+    ESTIMATOR_DEGRADED = "ESTIMATOR_DEGRADED"
+    ESTIMATOR_STALE = "ESTIMATOR_STALE"
+    POSITION_UNCERTAINTY_HIGH = "POSITION_UNCERTAINTY_HIGH"
+    VELOCITY_UNCERTAINTY_HIGH = "VELOCITY_UNCERTAINTY_HIGH"
+    ORIENTATION_UNCERTAINTY_HIGH = "ORIENTATION_UNCERTAINTY_HIGH"
+    VELOCITY_TOO_HIGH = "VELOCITY_TOO_HIGH"
+    LATERAL_ERROR_TOO_HIGH = "LATERAL_ERROR_TOO_HIGH"
+    LONGITUDINAL_ERROR_TOO_HIGH = "LONGITUDINAL_ERROR_TOO_HIGH"
+    YAW_ERROR_TOO_HIGH = "YAW_ERROR_TOO_HIGH"
+    ALTITUDE_UNAVAILABLE = "ALTITUDE_UNAVAILABLE"
+    DESCENT_NOT_AUTHORIZED = "DESCENT_NOT_AUTHORIZED"
+    TIMESTAMP_INVALID = "TIMESTAMP_INVALID"
+    SENSOR_DROPOUT = "SENSOR_DROPOUT"
+    STATE_TIMEOUT = "STATE_TIMEOUT"
+    PERSISTENCE_INSUFFICIENT = "PERSISTENCE_INSUFFICIENT"
+    CRITICAL_FAULT = "CRITICAL_FAULT"
+
+
+class EstimatorHealthStatus(str, Enum):
+    """Health classification of the underlying state estimation engine."""
+    HEALTHY = "HEALTHY"
+    DEGRADED = "DEGRADED"
+    UNINITIALIZED = "UNINITIALIZED"
+    STALE = "STALE"
+    FAULT = "FAULT"
+
+
+class TargetHealthStatus(str, Enum):
+    """Health classification of the perceived landing target."""
+    HEALTHY = "HEALTHY"
+    DEGRADED = "DEGRADED"
+    LOST = "LOST"
+    STALE = "STALE"
+    UNINITIALIZED = "UNINITIALIZED"
+
+
+class LandingSafetyContext(BaseModel):
+    """Unified multi-subsystem context consumed by the Safety Supervisor."""
+    timestamp_sec: float = Field(..., gt=0.0, description="Evaluation timestamp in seconds")
+    target_info: Optional[TrackInfo] = None
+    pose_result: Optional[PoseEstimateResult] = None
+    spatial_localization: Optional[SpatialLocalizationResult] = None
+    esekf_state: Optional[NominalState] = None
+    esekf_diagnostics: Optional[ESEKFDiagnostics] = None
+    critical_fault_flag: bool = Field(default=False, description="Hardware or critical software fault flag")
+
+
+class LandingDecision(BaseModel):
+    """Explainable decision emitted by the Landing Intelligence Safety Supervisor."""
+    timestamp_sec: float = Field(..., description="Timestamp of the decision in seconds")
+    current_state: LandingPhase = Field(..., description="Current state machine operational phase")
+    previous_state: Optional[LandingPhase] = Field(default=None, description="Previous state machine phase")
+    recommended_action: RecommendedAction = Field(..., description="Recommended supervisory action")
+    decision_code: str = Field(..., description="Unique machine-readable decision identifier")
+    primary_reason: SafetyReasonCode = Field(..., description="Primary reason governing the decision")
+    reason_codes: List[SafetyReasonCode] = Field(default_factory=list, description="All contributing safety reason codes")
+    target_id: Optional[int] = Field(default=None, description="Active target ID if acquired")
+    estimator_health: EstimatorHealthStatus = Field(default=EstimatorHealthStatus.UNINITIALIZED)
+    target_health: TargetHealthStatus = Field(default=TargetHealthStatus.UNINITIALIZED)
+    is_safe_for_progression: bool = Field(default=False, description="Whether current state satisfies progression guards")
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0, description="Overall decision confidence score")
+    uncertainty_metrics: Dict[str, float] = Field(default_factory=dict, description="Consolidated 3-sigma uncertainties")
+    alignment_metrics: Dict[str, float] = Field(default_factory=dict, description="Geometric errors relative to target")
+    diagnostics: Dict[str, Any] = Field(default_factory=dict, description="Subsystem health and timing telemetry")
+
+
+
 

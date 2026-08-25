@@ -91,4 +91,25 @@ class SensorTimingError(FusionError):
     pass
 
 
+class IntelligenceError(SkyVantaError):
+    """Base exception for landing intelligence, safety supervision, and state machine decisions."""
+    pass
+
+
+class InvalidStateTransitionError(IntelligenceError):
+    """Raised when a state transition violates state machine guards or topology rules."""
+    pass
+
+
+class StateTimeoutError(IntelligenceError):
+    """Raised when a landing phase duration exceeds its configured maximum timeout."""
+    pass
+
+
+class SafetyInvariantViolationError(IntelligenceError):
+    """Raised when an active safety supervisor invariant is breached."""
+    pass
+
+
+
 
