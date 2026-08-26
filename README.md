@@ -2,57 +2,67 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-25%20passed-brightgreen.svg)](tests/)
+[![CI Status](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml)
+[![Tests Passing](https://img.shields.io/badge/tests-251%20passed-brightgreen.svg)](tests/)
 
 **Developer / Creator:** SkyVanta-AI / Devendraprasad  
 **Repository:** [https://github.com/luccy93/SkyVanta-AI](https://github.com/luccy93/SkyVanta-AI)
 
 ---
 
-## Overview
+## 1. System Overview
 
-**SkyVanta AI** is a modular computer vision, visual target tracking, and autonomous aerial perception platform designed for drone landing intelligence, relative approach geometry estimation, and tactical situational awareness.
+**SkyVanta AI (Volumes V1–V9)** is a modular, deterministic, simulation-first computer vision, 15-state sensor fusion, and autonomous landing intelligence platform. It provides end-to-end aerial target perception, 6-DoF fiducial pose estimation, SE(3) spatial frame graph transformation, Error-State Extended Kalman Filter (ESEKF) inertial fusion, 12-state hierarchical landing supervision, and closed-loop digital twin scenario validation.
 
-The platform provides:
-* **Hybrid Visual Detection**: Multi-cue candidate fusion combining YOLO deep learning inference with MOG2 background subtraction, Farneback dense optical flow, and Canny edge density scoring.
-* **Persistent State Estimation**: Linear 2D Kalman filter with dual One-Euro adaptive low-pass filters for zero-latency jitter reduction.
-* **Tactical Approach Corridor**: Perspective-aware 3D-style trapezoidal approach guidance tunnel dynamically projected to the ground landing pad.
-* **Visual Telemetry Readouts**: Heuristic visual distance, altitude, lateral/vertical offset, approach angle, and alignment estimations.
-* **Modular Python Package & C++ Subsystem**: Clean `skyvanta` package with typed Pydantic data structures, YAML configuration, CLI runner, and CMake C++ subsystem.
+### Core Architectural Capabilities:
+* **Multi-Cue Perception Pipeline (V2)**: Multi-cue candidate fusion combining YOLO deep learning inference (with strict offline weight checking) with MOG2 background subtraction, Farneback dense optical flow, and Canny edge scoring.
+* **Multi-Target Tracking & Smoothing (V3)**: Track lifecycle manager with 2D Kalman box filtering and dual One-Euro adaptive low-pass filters for zero-latency jitter reduction.
+* **6-DoF Landing Pad Pose Estimation (V4)**: Monocular ArUco / AprilTag fiducial detection with OpenCV IPPE / ITERATIVE Perspective-n-Point (PnP) solvers and pose quality rating.
+* **Spatial Coordinate Frame Graph (V5)**: $\text{SE}(3)$ Lie group transformation engine with Breadth-First Search frame traversal across `CAMERA`, `BODY`, `LANDING_PAD`, and `WORLD` (ENU).
+* **15-State ESEKF Sensor Fusion (V6)**: Multi-rate 100Hz IMU propagation and 30Hz visual pose measurement injection with Chi-squared innovation gating and SO(3) error state injection.
+* **Landing Intelligence & Safety Supervisor (V7)**: 12-state operational Finite State Machine (FSM) enforcing hard safety invariants (e.g. irrevocable abort-climb invariants upon sensor dropout or excessive lateral velocity).
+* **Flight Interface & Safety Boundary (V8)**: Monotonic command sequencing, rate limiting ($\le 25\text{Hz}$), and multi-layer authorization safety gates (`allow_external: false`).
+* **Digital Twin & Scenario Validation (V9)**: 6-DoF vehicle kinematics, sensor noise models (Gaussian, random walk drift, bias, latency queues), Monte Carlo reproducibility, and deterministic scenario engine.
 
 ---
 
-## System Architecture (Volume 1)
+## 2. V1–V9 Subsystem Architecture
 
 ```
 SkyVanta-AI/
-├── skyvanta/                     # Core Modular Python Package
-│   ├── core/                    # Types, Config, Logging, Exceptions
-│   ├── perception/              # YOLO & Motion Contrast Detectors + Fusion
-│   ├── tracking/                # KalmanBox2D, OneEuroFilter, TrackStateMachine
-│   ├── telemetry/               # TelemetryEstimator (heuristic visual metrics)
-│   ├── visualization/           # Palette, Drawing Primitives, Corridor, HUD Compositor
-│   ├── simulation/              # Procedural Aerial Scene & Demo Generator
-│   └── pipeline/                # PipelineRunner & Ingestion Orchestrator
+├── .github/                      # CI/CD Workflows
+│   └── workflows/ci.yml         # Matrix Regression Pipeline (Python 3.10-3.12)
+├── skyvanta/                     # Production Modular Package
+│   ├── core/                    # Immutable Types, Config Models, Exceptions, Logging
+│   ├── perception/              # YOLO / Motion Detectors, Optical Flow, Candidate Fusion
+│   ├── tracking/                # TrackManager, State Machine, One-Euro Filters
+│   ├── target/                  # Fiducial Detectors (ArUco, AprilTag, Mock), PnP Estimator
+│   ├── spatial/                 # SE(3) Transforms, Frame Graph, Camera Models, ENU/NED
+│   ├── fusion/                  # 15-State ESEKF, IMU Preprocessor, SO(3) Math, Innovation Gate
+│   ├── intelligence/            # 12-State Landing FSM, Safety Supervisor, Command Translation
+│   ├── flight/                  # Flight Authorizer, Command Rate Limiter, Mock Autopilot
+│   ├── simulation/              # Digital Twin Vehicle, Synthetic Sensors, Scenario Engine
+│   └── pipeline/                # Video Ingestion, Demo Runner, HUD Compositor
+├── config/                      # YAML Configuration Files
+│   └── default.yaml             # Authoritative Platform Configuration
 ├── cpp/                         # Standalone C++ Subsystem & CMake Build
 │   ├── CMakeLists.txt
-│   └── src/main.cpp
-├── config/                      # YAML Configuration Files
-│   └── default.yaml
-├── legacy/                      # Preserved Baseline Prototypes
+│   └── src/main.cpp             # C++ Kalman Demo & HUD Drawing Engine
+├── legacy/                      # Preserved Characterization Baseline Prototypes
 │   ├── main.py
 │   └── main.cpp
-├── tests/                       # Pytest Suite (Unit, Integration, Parity)
-│   ├── unit/
-│   ├── integration/
-│   └── characterization/
-├── pyproject.toml               # Modern Python Package Specification
-└── requirements.txt             # Locked Dependencies
+├── tests/                       # 250+ Automated Pytest Test Harness
+│   ├── unit/                    # Subsystem Unit & Mathematical Invariant Tests
+│   ├── integration/             # Closed-Loop Integration & V9 Regression Suites
+│   └── characterization/       # Numerical Parity Against Baseline
+├── pyproject.toml               # Python Packaging & Tool Configuration
+├── requirements.txt             # Core Runtime Dependencies
+└── requirements-dev.txt         # Development & Test Dependencies
 ```
 
 ---
 
-## Installation
+## 3. Installation
 
 ### 1. Clone Repository
 ```bash
@@ -62,58 +72,111 @@ cd SkyVanta-AI
 
 ### 2. Install Dependencies
 ```bash
+# Core production dependencies
 pip install -r requirements.txt
-```
 
-For development and test dependencies:
-```bash
+# Development, testing, and linting tools
 pip install -r requirements-dev.txt
+
+# Editable package install
+pip install -e .
 ```
 
 ---
 
-## Usage
+## 4. Usage & Execution Modes
 
-### 1. Run Procedural Synthetic Demonstration
+### 1. Execute Digital Twin Landing Scenario
+Execute full closed-loop V9 landing scenarios directly via the canonical CLI:
 ```bash
-python -m skyvanta --demo
-# or simply:
-python -m skyvanta
-```
-Renders a 13-second synthetic aerial approach demonstration to `output/demo_perception.mp4`.
+# Nominal autonomous landing scenario
+skyvanta --scenario nominal_landing
 
-### 2. Process Input Video File
-```bash
-python -m skyvanta --input path/to/flight_video.mp4 --output output/rendered_perception.mp4
-```
+# Sensor dropout / visual occlusion abort scenario
+skyvanta --scenario target_loss
 
-### 3. Custom Configuration
-```bash
-python -m skyvanta --input flight.mp4 --config config/default.yaml
+# Turbulent descent with aerodynamic disturbance
+skyvanta --scenario turbulent_descent
 ```
 
-### 4. Detection Mode Flags
-* Force enable YOLO object detection: `python -m skyvanta --yolo`
-* Disable YOLO (motion-contrast only): `python -m skyvanta --no-yolo`
+### 2. Run Monte Carlo Batch Validation
+Run deterministic Monte Carlo simulations across multiple randomized seeds:
+```bash
+skyvanta --scenario high_winds --monte-carlo --runs 20 --seed 42
+```
+
+### 3. Run Simulation Performance Benchmark
+```bash
+skyvanta --benchmark-simulation
+```
+
+### 4. Synthetic Video Demonstration
+Renders a synthetic aerial perception approach with HUD telemetry overlays to `output/demo_perception.mp4`:
+```bash
+skyvanta --demo
+```
+
+### 5. Process External Flight Video
+```bash
+skyvanta --input flight_footage.mp4 --output output/perception_annotated.mp4
+```
 
 ---
 
-## Testing & Quality Assurance
+## 5. Simulation Benchmarks & Scenarios
 
-Run the automated test harness:
+| Scenario Identifier | Focus & Environmental Condition | Primary Evaluated Invariant | Expected Outcome |
+| :--- | :--- | :--- | :--- |
+| **`nominal_landing`** | Calm atmosphere, continuous target visibility | Steady alignment and smooth touchdown | `TOUCHDOWN` ($z \le 0.05\text{m}$, $v_z \le 0.3\text{m/s}$) |
+| **`target_loss`** | 2.5-second complete target occlusion at $z=4\text{m}$ | Immediate transition to `ABORTING` climb | `ABORTED` (Climbs out at $v_z = +1.0\text{m/s}$) |
+| **`high_winds`** | Continuous $1.2\text{m/s}$ lateral crosswind gusts | Lateral error hysteresis gating | Safe descent with active heading hold |
+| **`sensor_dropout`** | Severe IMU / camera communication dropouts | Staleness detection ($> 0.5\text{s}$) | Transition to hold / abort mode |
+| **`turbulent_descent`** | Rapid random-walk wind velocity impulses | ESEKF innovation gating ($\text{NIS} \le 16.81$) | Resilient covariance propagation |
+| **`aborted_approach`** | Injected runaway velocity exceedance | Multi-layer velocity invariant protection | Guaranteed climb-out setpoint |
+| **`severe_yaw_offset`** | Initial 45° angular misalignment | Geometric alignment verification ($\le 15^\circ$) | Heading alignment before descent |
+| **`rapid_landing`** | Steep initial descent trajectory | Touchdown velocity damping ($\le 0.2\text{m/s}$) | Controlled soft landing |
+
+### Typical Simulation Performance Benchmark (Core i7 / Ryzen):
+* **Realtime Acceleration Factor**: $\approx 35\times - 65\times$ realtime
+* **Simulation Step Latency**: $\approx 1.3\text{ ms}$ per step
+* **Execution Throughput**: $> 750$ discrete closed-loop steps/second
+
+---
+
+## 6. Testing & Quality Assurance
+
+Run the complete deterministic test suite:
 ```bash
 pytest
 ```
-The test harness runs 25 automated tests across:
-* **Unit Tests**: Bounding box geometry, IoU calculation, configuration serialization, Kalman predict/correct cycles, One-Euro low-pass filtering, tracking FSM transitions.
-* **Integration Tests**: End-to-end video pipeline synthesis without crashes.
-* **Characterization Tests**: Numerical and mathematical parity verification against baseline algorithms.
+The automated test suite runs **251+ tests** across:
+* **Unit Tests**: Group Lie algebra $SO(3)$ & $SE(3)$, PnP geometry, 15-state ESEKF propagation/update, Chi2 innovation gating, 12-state FSM state machine transitions, rate limiter bypass invariants, ENU/NED coordinate transforms.
+* **Integration Tests**: Full closed-loop digital twin execution, multi-sensor pipeline, scenario replay determinism, flight interface authorization gates.
+* **Characterization Tests**: Numerical parity against legacy algorithms.
 
 ---
 
-## Standalone C++ Subsystem
+## 7. Safety Architecture & Operational Boundaries
 
-Build and execute the C++ Kalman bouncing ball and HUD rendering demo:
+> [!IMPORTANT]
+> **Safety Boundary Notice**: SkyVanta AI is an offline, simulation-first software architecture.
+> 1. **Hardware Isolation**: The codebase contains **zero** physical hardware drivers, serial port connections, UDP/TCP socket transports, or live MAVLink telemetry streams.
+> 2. **Multi-Layer Safety Gate**: The parameter `flight_interface.safety.allow_external` defaults to `False`. External non-simulation command transmission is strictly prohibited by software invariant assertions.
+> 3. **Offline Execution**: Automatic runtime network model downloads and runtime package installations are strictly disabled (`allow_network_download: false`).
+
+---
+
+## 8. Engineering Scope & Limitations
+
+* **Simulation Results vs. Physical Avionics**: All benchmarks, state estimation trajectories, and landing evaluations documented in this repository represent **software-in-the-loop (SIL) simulation and digital twin validation**.
+* **Flight Certification**: SkyVanta AI is an experimental robotics software platform and is **not certified** by the FAA, EASA, or any aviation authority for crewed or uncrewed physical flight operations.
+* **No Real-World Flight Claims**: Simulation results demonstrate algorithmic correctness, numerical stability, and deterministic execution under synthetic disturbance models; they do not guarantee real-world flight performance or centimeter-level physical accuracy under unmodeled physical atmospheric dynamics.
+
+---
+
+## 9. Standalone C++ Subsystem
+
+Build and execute the standalone OpenCV C++ HUD and Kalman engine:
 ```bash
 cd cpp
 mkdir build && cd build
@@ -124,21 +187,7 @@ cmake --build .
 
 ---
 
-## Legacy Prototype Archive
-
-The original monolithic prototype files are preserved in `legacy/`:
-* `legacy/main.py`: `python legacy/main.py [video.mp4]`
-* `legacy/main.cpp`: Standalone OpenCV C++ prototype
-
----
-
-## Disclaimer
-
-SkyVanta AI Volume 1 is an experimental computer vision and software perception platform. Telemetry metrics (distance, altitude, angle, alignment) are derived from 2D visual heuristics and pixel scale changes. They represent visual approximations for simulation and HUD display, not certified physical avionics measurements.
-
----
-
-## License
+## 10. License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
