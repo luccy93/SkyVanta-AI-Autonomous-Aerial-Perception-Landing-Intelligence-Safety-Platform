@@ -163,9 +163,9 @@ def main() -> None:
     config = SkyVantaConfig.from_yaml(args.config) if args.config else SkyVantaConfig()
 
     if args.no_yolo:
-        config.detector.use_yolo = False
+        config.perception.detector.use_yolo = False
     elif args.yolo:
-        config.detector.use_yolo = True
+        config.perception.detector.use_yolo = True
 
     runner = PipelineRunner(config)
 

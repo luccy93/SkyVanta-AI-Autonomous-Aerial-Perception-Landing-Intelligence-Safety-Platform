@@ -3,8 +3,8 @@
 Eliminates scattered magic numbers and provides clean YAML/dictionary loading.
 """
 
-from typing import List, Optional, Set
-from pydantic import BaseModel, Field
+from typing import Any, List, Optional, Set
+from pydantic import BaseModel, Field, model_validator
 import yaml
 import os
 
@@ -387,21 +387,32 @@ class SkyVantaConfig(BaseModel):
     esekf: ESEKFConfig = Field(default_factory=ESEKFConfig)
     intelligence: LandingIntelligenceConfig = Field(default_factory=LandingIntelligenceConfig)
     flight_interface: FlightInterfaceConfig = Field(default_factory=FlightInterfaceConfig)
-    detector: DetectorConfig = Field(default_factory=DetectorConfig)
     smoothing: SmoothingConfig = Field(default_factory=SmoothingConfig)
     tracker: TrackerConfig = Field(default_factory=TrackerConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _migrate_legacy_keys(cls, data: Any) -> Any:
+        """Migrates legacy top-level detector dictionary to authoritative perception.detector."""
+        if isinstance(data, dict) and "detector" in data:
+            legacy_det = data.pop("detector")
+            if "perception" not in data:
+                data["perception"] = {"detector": legacy_det}
+            elif isinstance(data["perception"], dict) and "detector" not in data["perception"]:
+                data["perception"]["detector"] = legacy_det
+        return data
 
+    @property
+    def detector(self) -> DetectorConfig:
+        """Backward-compatible accessor for authoritative perception.detector."""
+        return self.perception.detector
 
-
-
-
-    def model_post_init(self, __context) -> None:
-        """Syncs top-level detector and tracker settings."""
-        if self.detector != self.perception.detector:
-            self.perception.detector = self.detector
+    @detector.setter
+    def detector(self, value: DetectorConfig) -> None:
+        """Backward-compatible setter routing directly to authoritative perception.detector."""
+        self.perception.detector = value
 
     @classmethod
     def from_yaml(cls, path: str) -> "SkyVantaConfig":

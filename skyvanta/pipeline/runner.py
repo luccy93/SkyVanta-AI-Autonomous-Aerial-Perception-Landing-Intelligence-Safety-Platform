@@ -191,7 +191,7 @@ class PipelineRunner:
 
         # Disable YOLO in demo generator to run fast procedural simulation
         demo_config = self.config.model_copy(deep=True)
-        demo_config.detector.use_yolo = False
+        demo_config.perception.detector.use_yolo = False
 
         tracker = DroneTracker((target_h, target_w), demo_config)
         telemetry_est = TelemetryEstimator((target_h, target_w), demo_config)

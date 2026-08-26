@@ -31,7 +31,7 @@ class DroneTracker:
         self.h, self.w = frame_shape[:2]
         self.config = config or SkyVantaConfig()
 
-        self.yolo = YoloDroneDetector(self.config.perception.detector) if self.config.detector.use_yolo else None
+        self.yolo = YoloDroneDetector(self.config.perception.detector) if self.config.perception.detector.use_yolo else None
         self.motion = MotionContrastDetector(frame_shape, self.config.perception.motion)
         self.fusion = CandidateFusion(self.config.perception.fusion)
 
