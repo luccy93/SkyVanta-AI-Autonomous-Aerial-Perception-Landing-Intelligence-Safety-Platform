@@ -25,11 +25,26 @@ class DetectorConfig(BaseModel):
         default={"airplane", "bird", "kite", "frisbee"},
         description="Target class labels accepted by proxy detector"
     )
-    motion_history: int = Field(default=120, description="MOG2 background history frames (legacy alias)")
-    motion_var_threshold: float = Field(default=18.0, description="MOG2 variance threshold (legacy alias)")
-    motion_min_area_ratio: float = Field(default=0.00004, description="Min contour area ratio (legacy alias)")
-    motion_max_area_ratio: float = Field(default=0.06, description="Max contour area ratio (legacy alias)")
-    fusion_iou_threshold: float = Field(default=0.1, description="IoU threshold to fuse YOLO + Motion (legacy alias)")
+    motion_history: int = Field(
+        default=120,
+        description="DEPRECATED: Legacy alias retained for V1 compatibility. Use MotionConfig.history instead."
+    )
+    motion_var_threshold: float = Field(
+        default=18.0,
+        description="DEPRECATED: Legacy alias retained for V1 compatibility. Use MotionConfig.var_threshold instead."
+    )
+    motion_min_area_ratio: float = Field(
+        default=0.00004,
+        description="DEPRECATED: Legacy alias retained for V1 compatibility. Use MotionConfig.min_area_ratio instead."
+    )
+    motion_max_area_ratio: float = Field(
+        default=0.06,
+        description="DEPRECATED: Legacy alias retained for V1 compatibility. Use MotionConfig.max_area_ratio instead."
+    )
+    fusion_iou_threshold: float = Field(
+        default=0.1,
+        description="DEPRECATED: Legacy alias retained for V1 compatibility. Use FusionConfig.iou_threshold instead."
+    )
 
 
 class MotionConfig(BaseModel):
