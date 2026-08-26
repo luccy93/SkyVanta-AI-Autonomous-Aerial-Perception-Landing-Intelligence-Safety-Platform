@@ -44,6 +44,22 @@ class YoloDroneDetector(BaseDetector):
             return
 
         model_path = self.config.yolo_model_path
+        allow_download = getattr(self.config, "allow_network_download", False)
+
+        # Strictly enforce offline execution and local model availability
+        if not allow_download:
+            if not model_path or not os.path.isfile(model_path):
+                msg = (
+                    f"Local YOLO weights file not found at '{model_path}' and allow_network_download is False. "
+                    f"SkyVanta prohibits automatic runtime network downloads. "
+                    f"Provide an authentic local weights file path or run in motion-only mode (--no-yolo)."
+                )
+                if strict:
+                    raise ModelLoadError(msg)
+                logger.warning("%s (Falling back to motion contrast)", msg)
+                self._is_available = False
+                return
+
         try:
             # Load YOLO model
             self._model = YOLO(model_path)
@@ -53,7 +69,7 @@ class YoloDroneDetector(BaseDetector):
             msg = (
                 f"Failed to load YOLO model weights from '{model_path}'. "
                 f"Ensure the weight file exists and is accessible, or configure "
-                f"'detector.yolo_model_path' in your config YAML. Error details: {e}"
+                f"'perception.detector.yolo_model_path' in your config YAML. Error details: {e}"
             )
             if strict:
                 raise ModelLoadError(msg) from e

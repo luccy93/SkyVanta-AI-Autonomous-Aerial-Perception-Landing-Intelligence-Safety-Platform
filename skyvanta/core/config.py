@@ -13,6 +13,10 @@ class DetectorConfig(BaseModel):
     """Configuration for deep learning object detectors."""
     use_yolo: bool = Field(default=True, description="Enable YOLO deep learning detector")
     yolo_model_path: str = Field(default="yolov8n.pt", description="Path or name of YOLO weights")
+    allow_network_download: bool = Field(
+        default=False,
+        description="Strictly disallow automatic runtime network downloads of model weights"
+    )
     yolo_confidence_threshold: float = Field(default=0.08, ge=0.01, le=1.0)
     yolo_iou_threshold: float = Field(default=0.45, ge=0.01, le=1.0)
     yolo_input_size: int = Field(default=640, description="Inference image dimension")

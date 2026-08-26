@@ -4,6 +4,7 @@ perception:
   detector:
     use_yolo: true
     yolo_model_path: "yolov8n.pt"
+    allow_network_download: false
     yolo_confidence_threshold: 0.08
     yolo_iou_threshold: 0.45
     yolo_input_size: 640
