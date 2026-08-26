@@ -44,8 +44,8 @@ STANDARD_FRAMES: Dict[FrameId, FrameDefinition] = {
     FrameId.WORLD: FrameDefinition(
         frame_id=FrameId.WORLD,
         parent_frame=None,
-        convention="NED",
-        axes_description="+X: North, +Y: East, +Z: Down (Inertial Navigation Reference)",
+        convention="ENU",
+        axes_description="+X: East, +Y: North, +Z: Up (Inertial Simulation & Navigation Reference, Altitude >= 0)",
         units="meters",
         is_inertial=True,
     ),

@@ -117,3 +117,63 @@ def euler_to_rotation_matrix(roll_rad: float, pitch_rad: float, yaw_rad: float) 
     ], dtype=np.float64)
 
     return Rz @ Ry @ Rx
+
+
+# Constant permutation matrix mapping ENU coordinates [East, North, Up] to NED [North, East, Down]
+# P_ned = R_NED_ENU @ P_enu
+R_NED_ENU = np.array([
+    [0.0, 1.0, 0.0],
+    [1.0, 0.0, 0.0],
+    [0.0, 0.0, -1.0],
+], dtype=np.float64)
+
+
+def enu_to_ned_position(pos_enu: np.ndarray) -> np.ndarray:
+    """Converts a 3D position vector from East-North-Up (ENU) to North-East-Down (NED).
+
+    Args:
+        pos_enu: (3,) array [x_east, y_north, z_up]
+
+    Returns:
+        (3,) array [x_north, y_east, z_down]
+    """
+    p = np.ascontiguousarray(pos_enu, dtype=np.float64).flatten()
+    return R_NED_ENU @ p
+
+
+def ned_to_enu_position(pos_ned: np.ndarray) -> np.ndarray:
+    """Converts a 3D position vector from North-East-Down (NED) to East-North-Up (ENU).
+
+    Args:
+        pos_ned: (3,) array [x_north, y_east, z_down]
+
+    Returns:
+        (3,) array [x_east, y_north, z_up]
+    """
+    p = np.ascontiguousarray(pos_ned, dtype=np.float64).flatten()
+    return R_NED_ENU @ p
+
+
+def enu_to_ned_velocity(vel_enu: np.ndarray) -> np.ndarray:
+    """Converts a linear velocity vector from ENU (m/s) to NED (m/s)."""
+    v = np.ascontiguousarray(vel_enu, dtype=np.float64).flatten()
+    return R_NED_ENU @ v
+
+
+def ned_to_enu_velocity(vel_ned: np.ndarray) -> np.ndarray:
+    """Converts a linear velocity vector from NED (m/s) to ENU (m/s)."""
+    v = np.ascontiguousarray(vel_ned, dtype=np.float64).flatten()
+    return R_NED_ENU @ v
+
+
+def enu_to_ned_rotation(R_enu: np.ndarray) -> np.ndarray:
+    """Converts a 3x3 orientation matrix from ENU reference frame to NED reference frame."""
+    R = np.ascontiguousarray(R_enu, dtype=np.float64).reshape(3, 3)
+    return R_NED_ENU @ R @ R_NED_ENU
+
+
+def ned_to_enu_rotation(R_ned: np.ndarray) -> np.ndarray:
+    """Converts a 3x3 orientation matrix from NED reference frame to ENU reference frame."""
+    R = np.ascontiguousarray(R_ned, dtype=np.float64).reshape(3, 3)
+    return R_NED_ENU @ R @ R_NED_ENU
+

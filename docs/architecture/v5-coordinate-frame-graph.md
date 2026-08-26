@@ -9,7 +9,9 @@
 | **`CAMERA`** | $\mathcal{F}_C$ | Optical / Pinhole | Camera optical center (pinhole) | $+X$: Right along sensor rows<br>$+Y$: Down along sensor columns<br>$+Z$: Forward optical depth axis |
 | **`BODY`** | $\mathcal{F}_B$ | NED / Aircraft Body | Drone center of mass (CoM) | $+X$: Forward along aircraft nose<br>$+Y$: Right along starboard wing<br>$+Z$: Down toward ground |
 | **`LANDING_PAD`** | $\mathcal{F}_P$ | Planar Target | Physical marker centroid | $+X$: Right along marker horizontal<br>$+Y$: Down along marker vertical<br>$+Z$: Normal into landing pad surface |
-| **`WORLD`** | $\mathcal{F}_W$ | Inertial Navigation (NED) | Takeoff point / Geodetic origin | $+X$: True North<br>$+Y$: True East<br>$+Z$: Down (Gravity vector) |
+| **`WORLD`** | $\mathcal{F}_W$ | Inertial Navigation (ENU) | Takeoff point / Geodetic origin | $+X$: East<br>$+Y$: North<br>$+Z$: Up (Altitude $\ge 0$, gravity $-Z$) |
+
+> **Note on Aviation Standards**: The simulation environment and inertial state estimation operate in local **ENU** ($+Z$ Up). When interfacing with external aviation autopilots that use **NED** ($+Z$ Down), use explicit platform conversion utilities `skyvanta.spatial.transform.enu_to_ned_*` and `ned_to_enu_*`.
 
 ---
 
