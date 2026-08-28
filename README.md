@@ -187,7 +187,25 @@ cmake --build .
 
 ---
 
-## 10. License
+## 10. Deployment & Containerization
+
+SkyVanta's deployment layer exposes the simulation and AI pipeline as software services. Physical flight hardware remains disabled.
+
+### 1. Docker Build & Run
+```bash
+# Build minimal production container
+docker build -t skyvanta-ai:latest .
+
+# Run containerized simulation service
+docker run -p 8080:8080 --rm skyvanta-ai:latest
+```
+
+### 2. Environment Configuration
+The deployment layer (`skyvanta.deployment`) supports `development`, `testing`, and `production` tiers via environment variables (`SKYVANTA_ENV`, `SKYVANTA_PORT`, etc.) while enforcing non-overridable safety isolation invariants (`allow_external: false`, `allow_network_download: false`).
+
+---
+
+## 11. License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 

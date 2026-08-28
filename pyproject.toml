@@ -24,6 +24,11 @@ dependencies = [
 yolo = [
     "ultralytics>=8.0.0",
 ]
+deploy = [
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.23.0",
+    "websockets>=11.0",
+]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
