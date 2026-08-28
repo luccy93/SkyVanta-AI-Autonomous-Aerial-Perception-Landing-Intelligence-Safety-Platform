@@ -8,9 +8,9 @@ import numpy as np
 
 from skyvanta.core.types import BoundingBox, TrackState, TrackInfo
 from skyvanta.core.config import SkyVantaConfig
-from skyvanta.perception.detector import YoloDroneDetector
-from skyvanta.perception.motion import MotionContrastDetector
-from skyvanta.perception.fusion import CandidateFusion
+from skyvanta.perception.detection.yolo import YoloDroneDetector
+from skyvanta.perception.motion.background import MotionContrastDetector
+from skyvanta.perception.fusion.candidate_fusion import CandidateFusion
 from skyvanta.tracking.kalman import KalmanBox2D
 from skyvanta.tracking.smoothing import OneEuroFilter, Vec2EuroFilter
 from skyvanta.tracking.state import TrackStateMachine

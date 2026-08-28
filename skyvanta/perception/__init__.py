@@ -1,7 +1,8 @@
 """SkyVanta AI — Production Computer Vision Perception Engine (Volume 2)."""
 
-from skyvanta.perception.base import BaseDetector, BaseMotionDetector
-from skyvanta.perception.types import (
+from skyvanta.perception.detection.base import BaseDetector
+from skyvanta.perception.motion.base import BaseMotionDetector
+from skyvanta.core.types import (
     BoundingBox,
     Detection,
     DetectionSource,
