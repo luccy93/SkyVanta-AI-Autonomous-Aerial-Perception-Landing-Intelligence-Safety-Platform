@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![CI Status](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml)
-[![Tests Passing](https://img.shields.io/badge/tests-251%20passed-brightgreen.svg)](tests/)
+[![Tests Passing](https://img.shields.io/badge/tests-261%20passed-brightgreen.svg)](tests/)
 
 **Developer / Creator:** SkyVanta-AI / Devendraprasad  
 **Repository:** [https://github.com/luccy93/SkyVanta-AI](https://github.com/luccy93/SkyVanta-AI)
@@ -149,7 +149,7 @@ Run the complete deterministic test suite:
 ```bash
 pytest
 ```
-The automated test suite runs **251+ tests** across:
+The automated test suite runs **261 tests** across:
 * **Unit Tests**: Group Lie algebra $SO(3)$ & $SE(3)$, PnP geometry, 15-state ESEKF propagation/update, Chi2 innovation gating, 12-state FSM state machine transitions, rate limiter bypass invariants, ENU/NED coordinate transforms.
 * **Integration Tests**: Full closed-loop digital twin execution, multi-sensor pipeline, scenario replay determinism, flight interface authorization gates.
 * **Characterization Tests**: Numerical parity against legacy algorithms.
