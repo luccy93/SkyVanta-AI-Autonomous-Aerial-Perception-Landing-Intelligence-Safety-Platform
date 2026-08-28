@@ -51,5 +51,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD python -c "from skyvanta.deployment import HealthCheckService; res = HealthCheckService().check_health(); exit(0 if res.status == 'healthy' else 1)"
 
-# Default entrypoint
-CMD ["skyvanta", "--scenario", "nominal_landing"]
+# Default entrypoint: Start FastAPI application server
+CMD ["uvicorn", "skyvanta.deployment.api.app:app", "--host", "0.0.0.0", "--port", "8080"]

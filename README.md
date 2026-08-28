@@ -187,21 +187,30 @@ cmake --build .
 
 ---
 
-## 10. Deployment & Containerization
+## 10. Deployment & FastAPI REST Backend
 
 SkyVanta's deployment layer exposes the simulation and AI pipeline as software services. Physical flight hardware remains disabled.
 
-### 1. Docker Build & Run
+### 1. Start FastAPI REST Backend
+```bash
+# Start backend server with Uvicorn
+uvicorn skyvanta.deployment.api.app:app --host 0.0.0.0 --port 8080 --reload
+```
+- **Interactive Swagger Docs**: [http://localhost:8080/docs](http://localhost:8080/docs)
+- **Infrastructure Health**: [http://localhost:8080/health](http://localhost:8080/health)
+- **Scenario Catalog**: [http://localhost:8080/api/v1/scenarios](http://localhost:8080/api/v1/scenarios)
+
+### 2. Docker Build & Run
 ```bash
 # Build minimal production container
 docker build -t skyvanta-ai:latest .
 
-# Run containerized simulation service
+# Run containerized simulation service (Port 8080)
 docker run -p 8080:8080 --rm skyvanta-ai:latest
 ```
 
-### 2. Environment Configuration
-The deployment layer (`skyvanta.deployment`) supports `development`, `testing`, and `production` tiers via environment variables (`SKYVANTA_ENV`, `SKYVANTA_PORT`, etc.) while enforcing non-overridable safety isolation invariants (`allow_external: false`, `allow_network_download: false`).
+### 3. Environment Configuration
+The deployment layer (`skyvanta.deployment`) supports `development`, `testing`, and `production` tiers via environment variables (`SKYVANTA_ENV`, `SKYVANTA_PORT`, `SKYVANTA_CORS_ORIGINS`, etc.) while enforcing non-overridable safety isolation invariants (`allow_external: false`, `allow_network_download: false`).
 
 ---
 
