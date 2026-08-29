@@ -18,8 +18,10 @@ from skyvanta.deployment.api.routes import (
     scenarios_router,
     simulation_router,
     system_router,
+    telemetry_router,
 )
 from skyvanta.deployment.api.services.simulation_service import ScenarioNotFoundError
+from skyvanta.deployment.api.services.telemetry_service import TelemetryService
 
 try:
     import importlib.metadata as importlib_metadata
@@ -51,6 +53,8 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
         )
         yield
         logger.info("SkyVanta AI API server shutting down.")
+        if hasattr(app.state, "telemetry_service") and app.state.telemetry_service is not None:
+            await app.state.telemetry_service.shutdown()
 
     tags_metadata = [
         {
@@ -68,6 +72,10 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
         {
             "name": "Simulation",
             "description": "Closed-loop 6-DoF digital twin simulation execution and compliance scoring.",
+        },
+        {
+            "name": "Telemetry",
+            "description": "Real-time closed-loop digital twin telemetry WebSocket streaming.",
         },
     ]
 
@@ -88,6 +96,7 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
     # Attach state for dependency injection
     app.state.config = app_config
     app.state.health_service = HealthCheckService()
+    app.state.telemetry_service = TelemetryService()
 
     # 1. CORS Configuration
     app.add_middleware(
@@ -175,6 +184,7 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
     app.include_router(system_router)
     app.include_router(scenarios_router)
     app.include_router(simulation_router)
+    app.include_router(telemetry_router)
 
     return app
 

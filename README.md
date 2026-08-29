@@ -212,6 +212,15 @@ docker run -p 8080:8080 --rm skyvanta-ai:latest
 ### 3. Environment Configuration
 The deployment layer (`skyvanta.deployment`) supports `development`, `testing`, and `production` tiers via environment variables (`SKYVANTA_ENV`, `SKYVANTA_PORT`, `SKYVANTA_CORS_ORIGINS`, etc.) while enforcing non-overridable safety isolation invariants (`allow_external: false`, `allow_network_download: false`).
 
+### 4. Real-Time Telemetry WebSocket
+Stream closed-loop 6-DoF digital twin simulation telemetry in real time at 20 Hz:
+```bash
+# Connect WebSocket client to streaming endpoint
+ws://localhost:8080/api/v1/telemetry/ws?scenario=nominal_landing&rate_hz=20
+```
+- **Live Stream Schema**: [TelemetryStreamPacket](docs/deployment/d3-websocket-telemetry.md)
+- **Features**: Multi-client broadcasting, backpressure with bounded queues (`maxsize=50`), and `ping`/`pong` keepalive.
+
 ---
 
 ## 11. License

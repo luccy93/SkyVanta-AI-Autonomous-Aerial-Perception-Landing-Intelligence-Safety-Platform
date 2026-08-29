@@ -130,6 +130,14 @@ class ScenarioRunResponse(BaseModel):
 class TelemetryStreamPacket(BaseModel):
     """Real-time telemetry packet streamed across the WebSocket boundary."""
 
+    packet_type: str = Field(
+        default="telemetry",
+        description="Packet type classification identifier.",
+    )
+    scenario_name: Optional[str] = Field(
+        default=None,
+        description="Active benchmark scenario identifier.",
+    )
     timestamp_sim_sec: float = Field(
         description="Simulated mission timestamp in seconds.",
     )
