@@ -12,7 +12,7 @@ from skyvanta.core.exceptions import SkyVantaError
 from skyvanta.deployment.config import DeploymentConfig
 from skyvanta.deployment.health import HealthCheckService
 from skyvanta.deployment.logging import DeploymentLogger
-from skyvanta.deployment.api.middleware import RequestIDMiddleware
+from skyvanta.deployment.api.middleware import RequestIDMiddleware, SecurityHeadersMiddleware
 from skyvanta.deployment.api.routes import (
     health_router,
     scenarios_router,
@@ -108,7 +108,11 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
         expose_headers=["X-Request-ID"],
     )
 
-    # 2. Request Correlation ID Middleware
+    # 2. Defensive HTTP Security Headers
+    if app_config.enable_security_headers:
+        app.add_middleware(SecurityHeadersMiddleware)
+
+    # 3. Request Correlation ID Middleware
     app.add_middleware(RequestIDMiddleware)
 
     # 3. Exception Handlers

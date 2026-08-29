@@ -1,4 +1,4 @@
-"""Request correlation ID middleware for API tracing and log correlation."""
+"""Request correlation ID and HTTP security headers middleware."""
 
 import uuid
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -20,4 +20,19 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 
         response: Response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
+        return response
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Attaches standard defensive HTTP security headers to outgoing responses."""
+
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        
+        # Standard defensive headers
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+
         return response

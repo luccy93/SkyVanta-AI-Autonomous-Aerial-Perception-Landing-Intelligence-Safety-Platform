@@ -225,6 +225,11 @@ ws://localhost:8080/api/v1/telemetry/ws?scenario=nominal_landing&rate_hz=20
 - **Live Stream Schema**: [TelemetryStreamPacket](docs/deployment/d3-websocket-telemetry.md)
 - **Features**: Multi-client broadcasting, backpressure with bounded queues (`maxsize=50`), and `ping`/`pong` keepalive.
 
+### 5. Production Configuration & Profiles
+SkyVanta provides structured deployment profiles (`development`, `testing`, `production`) with fail-fast Pydantic validation:
+- **Configuration Guide**: [Production Configuration Spec](docs/deployment/d5-production-configuration.md)
+- **Environment Template**: Copy `.env.example` to `.env` to configure ports, explicit CORS origins, and streaming rates.
+
 ---
 
 ## 11. License

@@ -42,7 +42,23 @@ async def telemetry_websocket_endpoint(
     scenario_name = scenario.strip() if (scenario and scenario.strip()) else "nominal_landing"
     logger.info("WebSocket connected [ID: %s, Scenario: %s]", conn_id, scenario_name)
 
-    # 1. Validate scenario exists in registered benchmark catalog
+    # 1. Enforce maximum simultaneous WebSocket client connections
+    if len(telemetry_service._active_connections) >= config.max_ws_clients:
+        logger.warning(
+            "WebSocket rejected [ID: %s]: Max client connections (%d) reached.",
+            conn_id,
+            config.max_ws_clients,
+        )
+        await websocket.send_json({
+            "type": "error",
+            "code": "MAX_CLIENTS_EXCEEDED",
+            "message": f"Server connection limit ({config.max_ws_clients}) reached.",
+            "connection_id": conn_id,
+        })
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    # 2. Validate scenario exists in registered benchmark catalog
     if ScenarioRegistry.get(scenario_name) is None:
         logger.warning(
             "WebSocket rejected [ID: %s]: Scenario '%s' not found.",
