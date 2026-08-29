@@ -200,14 +200,18 @@ uvicorn skyvanta.deployment.api.app:app --host 0.0.0.0 --port 8080 --reload
 - **Infrastructure Health**: [http://localhost:8080/health](http://localhost:8080/health)
 - **Scenario Catalog**: [http://localhost:8080/api/v1/scenarios](http://localhost:8080/api/v1/scenarios)
 
-### 2. Docker Build & Run
+### 2. Production Docker & Compose
 ```bash
-# Build minimal production container
+# Build multi-stage production container
 docker build -t skyvanta-ai:latest .
 
-# Run containerized simulation service (Port 8080)
-docker run -p 8080:8080 --rm skyvanta-ai:latest
+# Run hardened container (non-root user, port 8080)
+docker run -p 8080:8080 --security-opt no-new-privileges:true --cap-drop ALL --rm skyvanta-ai:latest
+
+# Or launch via Docker Compose
+docker compose up -d
 ```
+- **Container Hardening Spec**: [Production Docker Guide](docs/deployment/d4-production-docker.md)
 
 ### 3. Environment Configuration
 The deployment layer (`skyvanta.deployment`) supports `development`, `testing`, and `production` tiers via environment variables (`SKYVANTA_ENV`, `SKYVANTA_PORT`, `SKYVANTA_CORS_ORIGINS`, etc.) while enforcing non-overridable safety isolation invariants (`allow_external: false`, `allow_network_download: false`).

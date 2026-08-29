@@ -1,29 +1,58 @@
-.git
-.github
+# Git & CI/CD
+.git/
+.github/
 .gitignore
-__pycache__
-*.pyc
-*.pyo
-*.pyd
+
+# Python Bytecode & Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 .Python
-*.egg-info
+*.egg-info/
 dist/
 build/
-.pytest_cache
+.venv/
+venv/
+ENV/
+env/
+
+# Testing & Coverage
+.pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
 tests/
+
+# Documentation & C++ Subsystems
 docs/
 cpp/
 legacy/
+
+# Logs & Temporary Media
 output/
 *.mp4
 *.avi
 *.mov
 *.log
+*.tmp
+*.bak
+
+# Secrets & Configuration Overrides
 .env
-.venv
-venv/
-ENV/
+.env.*
+*.pem
+*.key
+*.token
+*.cert
+credentials*
+id_rsa*
+
+# IDE & Tooling Caches
 .gemini/
 mcp/
+brain/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

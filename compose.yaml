@@ -1,0 +1,37 @@
+# ==============================================================================
+# SkyVanta AI — Local Deployment Composition
+# Self-contained, hardened single-service deployment
+# ==============================================================================
+
+services:
+  skyvanta-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: skyvanta-ai:latest
+    container_name: skyvanta-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SKYVANTA_ENV=production
+      - SKYVANTA_HOST=0.0.0.0
+      - SKYVANTA_PORT=8080
+      - SKYVANTA_LOG_LEVEL=INFO
+      - SKYVANTA_ALLOW_EXTERNAL=false
+      - SKYVANTA_ALLOW_NETWORK_DOWNLOAD=false
+      - SKYVANTA_TELEMETRY_RATE_HZ=20.0
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: false
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    healthcheck:
+      test: ["CMD", "python", "-c", "from skyvanta.deployment import HealthCheckService; res = HealthCheckService().check_health(); exit(0 if res.status == 'healthy' else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
