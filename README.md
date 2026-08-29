@@ -230,6 +230,15 @@ SkyVanta provides structured deployment profiles (`development`, `testing`, `pro
 - **Configuration Guide**: [Production Configuration Spec](docs/deployment/d5-production-configuration.md)
 - **Environment Template**: Copy `.env.example` to `.env` to configure ports, explicit CORS origins, and streaming rates.
 
+### 6. Cloud Deployment & Public Production Release
+SkyVanta AI is deployed to a managed cloud container environment with automated TLS (HTTPS/WSS), health checks, and continuous delivery:
+- **Cloud Blueprint**: [`render.yaml`](render.yaml) (Declarative Infrastructure-as-Code)
+- **Deployment Guide**: [Cloud Deployment Specification](docs/deployment/d6-cloud-deployment.md)
+- **Public REST Base**: `https://skyvanta-ai.onrender.com`
+- **Public Telemetry WebSocket**: `wss://skyvanta-ai.onrender.com/api/v1/telemetry/ws?scenario=nominal_landing&rate_hz=20`
+- **Health Verification**: `https://skyvanta-ai.onrender.com/health`
+- **Safety Boundary**: Immutable software isolation (`hardware_access: false`, `allow_external: false`, `allow_network_download: false`).
+
 ---
 
 ## 11. License

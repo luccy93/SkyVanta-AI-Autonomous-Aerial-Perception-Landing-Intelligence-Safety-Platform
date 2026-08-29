@@ -156,8 +156,9 @@ class DeploymentConfig(BaseModel):
 
         host = os.getenv("SKYVANTA_HOST", "0.0.0.0").strip()
 
+        port_raw = os.getenv("PORT") or os.getenv("SKYVANTA_PORT", "8080")
         try:
-            port = int(os.getenv("SKYVANTA_PORT", "8080"))
+            port = int(port_raw)
         except ValueError:
             port = 8080
 

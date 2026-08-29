@@ -1,0 +1,38 @@
+# ==============================================================================
+# SkyVanta AI — Render Cloud Deployment Blueprint
+# Managed Container Web Service with Built-in TLS and WebSocket Support
+# ==============================================================================
+
+services:
+  - type: web
+    name: skyvanta-ai-api
+    runtime: docker
+    plan: starter
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: SKYVANTA_ENV
+        value: production
+      - key: SKYVANTA_HOST
+        value: 0.0.0.0
+      - key: SKYVANTA_PORT
+        value: "8080"
+      - key: SKYVANTA_LOG_LEVEL
+        value: INFO
+      - key: SKYVANTA_ALLOW_EXTERNAL
+        value: "false"
+      - key: SKYVANTA_ALLOW_NETWORK_DOWNLOAD
+        value: "false"
+      - key: SKYVANTA_TELEMETRY_RATE_HZ
+        value: "20.0"
+      - key: SKYVANTA_MAX_WS_CLIENTS
+        value: "50"
+      - key: SKYVANTA_REQUEST_TIMEOUT_SEC
+        value: "60.0"
+      - key: SKYVANTA_WS_IDLE_TIMEOUT_SEC
+        value: "300.0"
+      - key: SKYVANTA_CORS_ORIGINS
+        value: "https://skyvanta-ai.onrender.com,https://dashboard.skyvanta.ai"
