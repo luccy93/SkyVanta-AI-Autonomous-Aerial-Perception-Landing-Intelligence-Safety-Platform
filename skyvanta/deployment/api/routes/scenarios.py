@@ -1,9 +1,10 @@
 """Digital Twin benchmark scenario catalog discovery routes."""
 
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
+from skyvanta.deployment.security import require_scope, Scope, APIKeyRecord
 from skyvanta.simulation.registry import ScenarioRegistry
 
 router = APIRouter(prefix="/api/v1/scenarios", tags=["Scenarios"])
@@ -63,7 +64,9 @@ class ScenarioDetailItem(ScenarioCatalogItem):
     summary="List Scenario Catalog",
     description="Returns the full catalog of registered 6-DoF digital twin benchmark landing scenarios.",
 )
-async def list_scenarios() -> List[ScenarioCatalogItem]:
+async def list_scenarios(
+    _auth: APIKeyRecord = Depends(require_scope(Scope.READ)),
+) -> List[ScenarioCatalogItem]:
     """Lists all available standard benchmark landing scenarios."""
     scenarios = ScenarioRegistry.get_all_scenarios()
     catalog = []
@@ -90,7 +93,10 @@ async def list_scenarios() -> List[ScenarioCatalogItem]:
     summary="Get Scenario Details",
     description="Retrieves detailed kinematic and environmental configuration for a named benchmark scenario.",
 )
-async def get_scenario_details(scenario_name: str) -> ScenarioDetailItem:
+async def get_scenario_details(
+    scenario_name: str,
+    _auth: APIKeyRecord = Depends(require_scope(Scope.READ)),
+) -> ScenarioDetailItem:
     """Retrieves full specification for a specific benchmark scenario."""
     scenario = ScenarioRegistry.get(scenario_name)
     if scenario is None:

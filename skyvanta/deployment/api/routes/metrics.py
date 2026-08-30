@@ -9,6 +9,7 @@ from skyvanta.deployment.observability.events import event_logger
 from skyvanta.deployment.observability.metrics import metrics_collector
 from skyvanta.deployment.observability.runtime import system_resource_monitor
 from skyvanta.deployment.api.dependencies import get_deployment_config
+from skyvanta.deployment.security import require_scope, Scope, APIKeyRecord
 
 try:
     import importlib.metadata as importlib_metadata
@@ -32,6 +33,7 @@ router = APIRouter(prefix="/api/v1/metrics", tags=["Observability"])
 )
 async def get_metrics(
     config: DeploymentConfig = Depends(get_deployment_config),
+    _auth: APIKeyRecord = Depends(require_scope(Scope.READ)),
 ) -> MetricsResponseContract:
     """Collects and returns active operational telemetry and performance metrics."""
     http_metrics = metrics_collector.get_http_metrics()

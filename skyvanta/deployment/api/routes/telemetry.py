@@ -38,6 +38,14 @@ async def telemetry_websocket_endpoint(
     """Streams real-time 6-DoF digital twin telemetry packets over WebSocket."""
     from skyvanta.deployment.observability.events import EventType, event_logger
     from skyvanta.deployment.observability.metrics import metrics_collector
+    from skyvanta.deployment.security import authenticate_websocket, Scope
+
+    # 0. Secure Handshake Authentication
+    if config.enable_auth:
+        key_record = await authenticate_websocket(websocket, required_scope=Scope.READ)
+        if key_record is None:
+            # Rejection and WS_1008 closure handled inside authenticate_websocket
+            return
 
     await websocket.accept()
     conn_id = f"ws_{uuid4().hex[:8]}"

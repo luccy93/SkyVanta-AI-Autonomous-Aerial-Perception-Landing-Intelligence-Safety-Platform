@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, status
 from skyvanta.deployment.contracts import ScenarioRunRequest, ScenarioRunResponse
 from skyvanta.deployment.api.dependencies import get_request_id, get_simulation_service
 from skyvanta.deployment.api.services.simulation_service import SimulationService
+from skyvanta.deployment.security import require_scope, Scope, APIKeyRecord
 
 router = APIRouter(prefix="/api/v1/scenarios", tags=["Simulation"])
 
@@ -20,6 +21,7 @@ async def run_scenario(
     request: ScenarioRunRequest,
     simulation_service: SimulationService = Depends(get_simulation_service),
     request_id: str = Depends(get_request_id),
+    _auth: APIKeyRecord = Depends(require_scope(Scope.EXECUTE)),
 ) -> ScenarioRunResponse:
     """Executes a benchmark scenario through the verified simulation engine."""
     return await simulation_service.execute_scenario(request, request_id=request_id)

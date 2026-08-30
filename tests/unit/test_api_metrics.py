@@ -11,7 +11,9 @@ from skyvanta.deployment.observability.metrics import metrics_collector
 @pytest.fixture
 def client():
     app = create_app(DeploymentConfig(environment=DeploymentEnvironment.TESTING))
-    return TestClient(app)
+    c = TestClient(app)
+    c.headers["Authorization"] = "Bearer sk_test_admin_key_12345"
+    return c
 
 
 def test_metrics_endpoint_structure(client):

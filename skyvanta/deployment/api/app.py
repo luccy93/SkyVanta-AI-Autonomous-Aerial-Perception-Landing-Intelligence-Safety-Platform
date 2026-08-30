@@ -141,14 +141,22 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
     if app_config.enable_security_headers:
         app.add_middleware(SecurityHeadersMiddleware)
 
-    # 3. Observability & Latency Tracking Middleware
+    # 3. Request Payload & Header Size Limiting Middleware
+    from skyvanta.deployment.security.payload_limit import PayloadLimitMiddleware
+    app.add_middleware(
+        PayloadLimitMiddleware,
+        max_body_bytes=app_config.max_request_body_bytes,
+        max_header_bytes=app_config.max_request_header_bytes,
+    )
+
+    # 4. Observability & Latency Tracking Middleware
     app.add_middleware(
         ObservabilityMiddleware,
         slow_request_threshold_ms=app_config.slow_request_threshold_ms,
         environment=app_config.environment.value,
     )
 
-    # 4. API Rate Limiting Middleware
+    # 5. API Rate Limiting Middleware
     if app_config.enable_rate_limiting:
         app.add_middleware(
             RateLimitingMiddleware,
@@ -157,7 +165,7 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
             environment=app_config.environment.value,
         )
 
-    # 5. Request Correlation ID Middleware
+    # 6. Request Correlation ID Middleware
     app.add_middleware(RequestIDMiddleware)
 
     # 6. Exception Handlers
@@ -194,6 +202,9 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
         req_id = getattr(request.state, "request_id", "unknown")
         if exc.status_code >= 500:
             metrics_collector.record_error("internal")
+        resp_headers = {"X-Request-ID": req_id}
+        if exc.headers:
+            resp_headers.update(exc.headers)
         return JSONResponse(
             status_code=exc.status_code,
             content={
@@ -201,7 +212,7 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
                 "message": exc.detail,
                 "request_id": req_id,
             },
-            headers={"X-Request-ID": req_id},
+            headers=resp_headers,
         )
 
     @app.exception_handler(RequestValidationError)

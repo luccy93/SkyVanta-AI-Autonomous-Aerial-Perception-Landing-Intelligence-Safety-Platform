@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from skyvanta.deployment.config import DeploymentConfig
 from skyvanta.deployment.api.dependencies import get_deployment_config
+from skyvanta.deployment.security import require_scope, Scope, APIKeyRecord
 
 try:
     import importlib.metadata as importlib_metadata
@@ -67,6 +68,7 @@ class SystemInfoResponse(BaseModel):
 )
 async def get_system_info(
     config: DeploymentConfig = Depends(get_deployment_config),
+    _auth: APIKeyRecord = Depends(require_scope(Scope.READ)),
 ) -> SystemInfoResponse:
     """Returns application name, version, environment, and capability manifest."""
     from skyvanta.deployment.observability.runtime import system_resource_monitor

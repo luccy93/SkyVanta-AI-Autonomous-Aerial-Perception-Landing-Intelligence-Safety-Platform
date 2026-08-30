@@ -111,6 +111,7 @@ def test_production_cloud_system_info_endpoint():
         )
     )
     client = TestClient(app)
+    client.headers["Authorization"] = "Bearer sk_test_admin_key_12345"
 
     response = client.get("/api/v1/system/info")
     assert response.status_code == 200
@@ -136,6 +137,7 @@ def test_production_cloud_scenarios_catalog():
         )
     )
     client = TestClient(app)
+    client.headers["Authorization"] = "Bearer sk_test_admin_key_12345"
 
     response = client.get("/api/v1/scenarios")
     assert response.status_code == 200
@@ -159,6 +161,7 @@ def test_production_cloud_scenario_execution():
         )
     )
     client = TestClient(app)
+    client.headers["Authorization"] = "Bearer sk_test_admin_key_12345"
 
     payload = {
         "scenario_name": "nominal_landing",
@@ -186,6 +189,7 @@ def test_production_cloud_websocket_telemetry_lifecycle():
         )
     )
     client = TestClient(app)
+    client.headers["Authorization"] = "Bearer sk_test_admin_key_12345"
 
     # 1. First connection
     with client.websocket_connect("/api/v1/telemetry/ws?scenario=nominal_landing&rate_hz=20") as ws:

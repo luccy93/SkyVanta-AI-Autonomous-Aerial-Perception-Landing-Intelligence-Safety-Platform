@@ -67,16 +67,25 @@ class DeploymentHealthContract(BaseModel):
 class ScenarioRunRequest(BaseModel):
     """Request payload to initiate a digital twin simulation scenario."""
 
+    model_config = {"extra": "forbid"}
+
     scenario_name: str = Field(
         default="nominal_landing",
+        min_length=1,
+        max_length=128,
         description="Name of registered benchmark scenario to execute.",
     )
     seed: int = Field(
         default=42,
+        ge=0,
+        le=2147483647,
         description="Deterministic random seed for simulation reproducibility.",
     )
     max_duration_sec: Optional[float] = Field(
         default=None,
+        gt=0.0,
+        le=3600.0,
+        allow_inf_nan=False,
         description="Optional execution timeout override in seconds.",
     )
     enable_noise: bool = Field(

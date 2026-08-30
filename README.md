@@ -248,6 +248,17 @@ SkyVanta AI incorporates an integrated application-level observability subsystem
 - **Structured JSON Logging**: Single-line JSON stdout logging in production for structured cloud ingestion (Render Log Streams / Datadog / CloudWatch). Long-term log archiving is delegated to the cloud platform.
 - **Bounded Retention**: In-memory metric counters and audit events utilize bounded ring buffers ($O(1)$ memory).
 
+### 8. Production Security, Authentication & API Protection
+SkyVanta AI incorporates an integrated defense-in-depth security boundary (`skyvanta.deployment.security`):
+- **Security Handbook**: [Production Security Specification](docs/deployment/d8-security-authentication.md)
+- **Public Endpoints**: `GET /health` and `GET /ready` (Zero credentials required for platform probes).
+- **Protected Endpoints**: `GET /api/v1/system/info`, `GET /api/v1/scenarios`, `GET /api/v1/metrics`, `POST /api/v1/scenarios/run`, and `WS /api/v1/telemetry/ws` require API key authentication (`Authorization: Bearer <key>` or `X-API-Key: <key>`).
+- **Authorization Scopes**: Role-based permissions (`READ`, `EXECUTE`, `ADMIN`) ensure scenario executions require dedicated execution authority.
+- **WebSocket Handshake Admission**: Handshakes validate credentials before stream establishment; unauthorized clients are closed immediately (`1008 Policy Violation`).
+- **Cryptographic Security**: API keys are hashed with SHA-256 and evaluated using constant-time comparisons (`hmac.compare_digest`). Plaintext keys are never stored, logged, or exposed.
+- **Rate & Payload Limits**: Tiered token-bucket rate limiting (Read 120 rpm, Execute 30 rpm) and request body size enforcement ($64\text{ KB}$ max) prevent denial-of-service and resource exhaustion.
+- **Simulation-Only Isolation**: Security middleware cannot bypass internal V7/V8 safety supervisors; external hardware control remains permanently disabled.
+
 ---
 
 ## 11. License

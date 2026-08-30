@@ -24,7 +24,9 @@ def client():
             telemetry_rate_hz=50.0,
         )
     )
-    return TestClient(app)
+    c = TestClient(app)
+    c.headers["Authorization"] = "Bearer sk_test_admin_key_12345"
+    return c
 
 
 def test_websocket_connection_default_scenario(client):

@@ -180,6 +180,7 @@ def test_max_ws_clients_enforcement():
         )
     )
     client = TestClient(app)
+    client.headers["Authorization"] = "Bearer sk_test_admin_key_12345"
 
     # First client occupies the single allowed slot
     with client.websocket_connect("/api/v1/telemetry/ws") as ws1:

@@ -103,7 +103,35 @@ class DeploymentConfig(BaseModel):
         default=120,
         ge=1,
         le=10000,
-        description="Maximum allowed REST requests per minute per client IP.",
+        description="Maximum allowed REST requests per minute per client IP (default/read tier).",
+    )
+    rate_limit_execute_rpm: int = Field(
+        default=30,
+        ge=1,
+        le=1000,
+        description="Maximum allowed scenario execution requests per minute per client IP.",
+    )
+    rate_limit_metrics_rpm: int = Field(
+        default=60,
+        ge=1,
+        le=1000,
+        description="Maximum allowed metrics inspection requests per minute per client IP.",
+    )
+    enable_auth: bool = Field(
+        default=True,
+        description="Whether API key authentication is required for protected endpoints.",
+    )
+    max_request_body_bytes: int = Field(
+        default=65536,
+        ge=1024,
+        le=10485760,
+        description="Maximum allowable HTTP request body size in bytes (default 64 KB).",
+    )
+    max_request_header_bytes: int = Field(
+        default=16384,
+        ge=1024,
+        le=1048576,
+        description="Maximum allowable HTTP request header size in bytes (default 16 KB).",
     )
     git_commit: Optional[str] = Field(
         default=None,
@@ -257,6 +285,28 @@ class DeploymentConfig(BaseModel):
         except ValueError:
             rate_limit_rpm = 120
 
+        try:
+            rate_limit_exec_rpm = int(os.getenv("SKYVANTA_RATE_LIMIT_EXECUTE_RPM", "30"))
+        except ValueError:
+            rate_limit_exec_rpm = 30
+
+        try:
+            rate_limit_metrics_rpm = int(os.getenv("SKYVANTA_RATE_LIMIT_METRICS_RPM", "60"))
+        except ValueError:
+            rate_limit_metrics_rpm = 60
+
+        enable_auth = os.getenv("SKYVANTA_ENABLE_AUTH", "true").lower() in ("true", "1", "yes")
+
+        try:
+            max_body_bytes = int(os.getenv("SKYVANTA_MAX_REQUEST_BODY_BYTES", "65536"))
+        except ValueError:
+            max_body_bytes = 65536
+
+        try:
+            max_header_bytes = int(os.getenv("SKYVANTA_MAX_REQUEST_HEADER_BYTES", "16384"))
+        except ValueError:
+            max_header_bytes = 16384
+
         git_commit = os.getenv("GIT_COMMIT") or os.getenv("RENDER_GIT_COMMIT") or os.getenv("GITHUB_SHA")
         build_timestamp = os.getenv("BUILD_TIMESTAMP") or os.getenv("RENDER_DEPLOY_TIMESTAMP")
 
@@ -283,6 +333,11 @@ class DeploymentConfig(BaseModel):
             memory_warning_threshold_mb=mem_warning_mb,
             enable_rate_limiting=enable_rate_limiting,
             rate_limit_requests_per_min=rate_limit_rpm,
+            rate_limit_execute_rpm=rate_limit_exec_rpm,
+            rate_limit_metrics_rpm=rate_limit_metrics_rpm,
+            enable_auth=enable_auth,
+            max_request_body_bytes=max_body_bytes,
+            max_request_header_bytes=max_header_bytes,
             git_commit=git_commit,
             build_timestamp=build_timestamp,
             debug=debug,
