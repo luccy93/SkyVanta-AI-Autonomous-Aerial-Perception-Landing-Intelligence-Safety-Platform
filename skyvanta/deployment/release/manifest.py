@@ -55,24 +55,8 @@ def detect_git_metadata(base_dir: Optional[str] = None) -> Tuple[str, str]:
     if git_commit != "unknown" and git_branch != "unknown":
         return git_commit, git_branch
 
-    # 3. Check packaged release-manifest.json in base directory
+    # 3. Pure Python .git/HEAD reader (non-intrusive, zero subprocess/shell)
     root_path = base_dir or os.getcwd()
-    manifest_path = os.path.join(root_path, "release-manifest.json")
-    if os.path.isfile(manifest_path):
-        try:
-            with open(manifest_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if git_commit == "unknown" and data.get("git_commit"):
-                    git_commit = str(data["git_commit"]).strip()[:40]
-                if git_branch == "unknown" and data.get("git_branch"):
-                    git_branch = str(data["git_branch"]).strip()
-        except Exception:
-            pass
-
-    if git_commit != "unknown" and git_branch != "unknown":
-        return git_commit, git_branch
-
-    # 4. Pure Python .git/HEAD reader (non-intrusive, zero subprocess/shell)
     try:
         git_dir = os.path.join(root_path, ".git")
         head_file = os.path.join(git_dir, "HEAD")
@@ -106,6 +90,22 @@ def detect_git_metadata(base_dir: Optional[str] = None) -> Tuple[str, str]:
                     git_branch = "detached-head"
     except Exception:
         pass
+
+    if git_commit != "unknown" and git_branch != "unknown":
+        return git_commit, git_branch
+
+    # 4. Check packaged release-manifest.json in base directory (e.g. in container without .git)
+    manifest_path = os.path.join(root_path, "release-manifest.json")
+    if os.path.isfile(manifest_path):
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if git_commit == "unknown" and data.get("git_commit"):
+                    git_commit = str(data["git_commit"]).strip()[:40]
+                if git_branch == "unknown" and data.get("git_branch"):
+                    git_branch = str(data["git_branch"]).strip()
+        except Exception:
+            pass
 
     return git_commit, git_branch
 
