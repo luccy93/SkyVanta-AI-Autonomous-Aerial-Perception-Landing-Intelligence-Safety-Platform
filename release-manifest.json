@@ -1,0 +1,15 @@
+{
+  "application_name": "SkyVanta AI",
+  "version": "0.1.0",
+  "api_version": "v1",
+  "git_commit": "ef739c6173490612fa23e560e797e95a8b424dc2",
+  "git_branch": "main",
+  "build_timestamp": "2026-08-30T19:31:48.216843+00:00",
+  "python_version": "3.11.0",
+  "deployment_environment": "production",
+  "docker_image": "skyvanta-ai:latest",
+  "core_architecture_version": "V1-V9",
+  "test_count": 437,
+  "hardware_access": false,
+  "network_model_download": false
+}

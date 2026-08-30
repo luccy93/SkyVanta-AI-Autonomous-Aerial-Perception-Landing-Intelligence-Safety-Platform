@@ -1,6 +1,7 @@
 """SkyVanta AI Deployment & Service Boundary Layer.
 
 Provides configuration adapters, health check services, structured logging,
+release verification, startup validation, graceful shutdown, failure recovery,
 and data contracts for containerized, API-driven, and WebSocket deployment.
 """
 
@@ -34,6 +35,26 @@ from skyvanta.deployment.observability import (
     readiness_service,
     redact_sensitive_data,
     system_resource_monitor,
+)
+
+from skyvanta.deployment.release import (
+    ReleaseManifest,
+    ReleaseVerificationResult,
+    ReleaseVerifier,
+    detect_git_metadata,
+)
+from skyvanta.deployment.reliability import (
+    FailureCategory,
+    RecoveryAction,
+    RecoveryDecision,
+    RecoveryManager,
+    ShutdownCoordinator,
+    ShutdownResult,
+    StartupValidationError,
+    StartupValidationResult,
+    StartupValidator,
+    recovery_manager,
+    shutdown_coordinator,
 )
 
 from skyvanta.deployment.security import (
@@ -110,4 +131,19 @@ __all__ = [
     "sanitize_headers",
     "sanitize_payload",
     "PayloadLimitMiddleware",
+    "ReleaseManifest",
+    "ReleaseVerifier",
+    "ReleaseVerificationResult",
+    "detect_git_metadata",
+    "StartupValidator",
+    "StartupValidationError",
+    "StartupValidationResult",
+    "ShutdownCoordinator",
+    "ShutdownResult",
+    "shutdown_coordinator",
+    "FailureCategory",
+    "RecoveryAction",
+    "RecoveryDecision",
+    "RecoveryManager",
+    "recovery_manager",
 ]

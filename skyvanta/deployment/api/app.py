@@ -21,6 +21,7 @@ from skyvanta.deployment.api.middleware import RequestIDMiddleware, SecurityHead
 from skyvanta.deployment.api.routes import (
     health_router,
     metrics_router,
+    release_router,
     scenarios_router,
     simulation_router,
     system_router,
@@ -28,6 +29,7 @@ from skyvanta.deployment.api.routes import (
 )
 from skyvanta.deployment.api.services.simulation_service import ScenarioNotFoundError
 from skyvanta.deployment.api.services.telemetry_service import TelemetryService
+from skyvanta.deployment.reliability import StartupValidator, shutdown_coordinator
 
 try:
     import importlib.metadata as importlib_metadata
@@ -51,6 +53,14 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        # 1. Pre-flight startup validation
+        startup_validator = StartupValidator()
+        startup_validator.validate_or_raise(deployment_config=app_config)
+
+        # 2. Register telemetry service cleanup handler
+        if hasattr(app.state, "telemetry_service") and app.state.telemetry_service is not None:
+            shutdown_coordinator.register_handler(app.state.telemetry_service.shutdown)
+
         event_logger.emit(
             event_type=EventType.SERVICE_STARTED,
             message=f"SkyVanta AI API server starting in {app_config.environment.value} mode",
@@ -71,20 +81,19 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
         )
         yield
         logger.info("SkyVanta AI API server shutting down.")
-        event_logger.emit(
-            event_type=EventType.SERVICE_SHUTDOWN,
-            message="SkyVanta AI API server shutting down",
-            severity="INFO",
-            details={"environment": app_config.environment.value},
+        await shutdown_coordinator.initiate_shutdown(
+            timeout_sec=app_config.request_timeout_sec,
             environment=app_config.environment.value,
         )
-        if hasattr(app.state, "telemetry_service") and app.state.telemetry_service is not None:
-            await app.state.telemetry_service.shutdown()
 
     tags_metadata = [
         {
             "name": "Health",
             "description": "Infrastructure liveness, readiness, and safety boundary verification.",
+        },
+        {
+            "name": "Release",
+            "description": "Production release verification, metadata, and safety boundary contracts.",
         },
         {
             "name": "Observability",
@@ -248,6 +257,7 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
     # 7. Include Routers
     app.include_router(health_router)
     app.include_router(metrics_router)
+    app.include_router(release_router)
     app.include_router(system_router)
     app.include_router(scenarios_router)
     app.include_router(simulation_router)

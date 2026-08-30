@@ -95,13 +95,78 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run performance benchmark on simulation throughput",
     )
+    # Volume D9 Release Engineering & Verification
+    parser.add_argument(
+        "--release",
+        action="store_true",
+        help="Run pre-flight release verification and print readiness report",
+    )
     return parser
+
+
+def run_release_verification() -> int:
+    """Executes pre-flight release verification and formats summary report."""
+    import os
+    from skyvanta.deployment.config import DeploymentConfig
+    from skyvanta.deployment.release import ReleaseManifest, ReleaseVerifier
+
+    dep_cfg = DeploymentConfig.from_env()
+    manifest = ReleaseManifest.generate(
+        environment=dep_cfg.environment.value,
+        test_count=399,
+        base_dir=os.getcwd(),
+    )
+    if dep_cfg.git_commit:
+        manifest.git_commit = dep_cfg.git_commit
+
+    verifier = ReleaseVerifier()
+    result = verifier.verify(deployment_config=dep_cfg, manifest=manifest)
+
+    hw_str = "DISABLED" if not manifest.hardware_access else "ENABLED"
+    ext_str = "DISABLED" if not dep_cfg.allow_external else "ENABLED"
+    mod_str = "DISABLED" if not manifest.network_model_download else "ENABLED"
+
+    health_status = "PASS" if result.checks.get("health_service_operational", False) else "FAIL"
+    config_status = "PASS" if result.checks.get("hardware_isolation", False) and result.checks.get("version_valid", False) else "FAIL"
+    security_status = "PASS" if result.checks.get("secret_isolation", False) else "FAIL"
+    release_status = "PASS" if result.passed else "FAIL"
+    status_label = "READY" if result.passed else "FAILED"
+
+    print("SkyVanta AI Release Verification")
+    print("---------------------------------")
+    print(f"Version:              {manifest.version}")
+    print(f"Git Commit:           {manifest.git_commit}")
+    print(f"Environment:          {manifest.deployment_environment}")
+    print(f"Core Architecture:    {manifest.core_architecture_version}")
+    print("")
+    print(f"Hardware Access:      {hw_str}")
+    print(f"External Access:      {ext_str}")
+    print(f"Model Downloads:      {mod_str}")
+    print("")
+    print(f"Health:               {health_status}")
+    print(f"Configuration:        {config_status}")
+    print(f"Security:             {security_status}")
+    print(f"Release Verification: {release_status}")
+    print("")
+    print(f"RELEASE STATUS:       {status_label}")
+
+    if not result.passed:
+        if result.failures:
+            print("\nFailures:")
+            for f in result.failures:
+                print(f"  - {f}")
+        return 1
+    return 0
 
 
 def main() -> None:
     """CLI execution entrypoint."""
     parser = build_parser()
     args = parser.parse_args()
+
+    # 0. Check Release Subcommand / Option
+    if args.command == "release" or args.release:
+        sys.exit(run_release_verification())
 
     # 1. Check List Scenarios
     if args.list_scenarios:

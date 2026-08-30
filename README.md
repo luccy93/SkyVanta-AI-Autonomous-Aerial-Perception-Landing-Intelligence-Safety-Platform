@@ -257,7 +257,27 @@ SkyVanta AI incorporates an integrated defense-in-depth security boundary (`skyv
 - **WebSocket Handshake Admission**: Handshakes validate credentials before stream establishment; unauthorized clients are closed immediately (`1008 Policy Violation`).
 - **Cryptographic Security**: API keys are hashed with SHA-256 and evaluated using constant-time comparisons (`hmac.compare_digest`). Plaintext keys are never stored, logged, or exposed.
 - **Rate & Payload Limits**: Tiered token-bucket rate limiting (Read 120 rpm, Execute 30 rpm) and request body size enforcement ($64\text{ KB}$ max) prevent denial-of-service and resource exhaustion.
-- **Simulation-Only Isolation**: Security middleware cannot bypass internal V7/V8 safety supervisors; external hardware control remains permanently disabled.
+### 9. Production Release, Reliability & Disaster Recovery (Phase D9)
+SkyVanta AI incorporates a deterministic release verification, graceful lifecycle, and disaster recovery subsystem (`skyvanta.deployment.release` & `skyvanta.deployment.reliability`):
+- **Current Release Version**: `0.1.0` (Core Architecture: `V1-V9` Frozen Baseline)
+- **Release Verification**: Run pre-flight verification via `python -m skyvanta release` or inspect `GET /api/v1/release`.
+- **Pre-Flight Invariant Checks**: Automated startup validation verifies configuration integrity, scenario catalogs ($\ge 10$), health services, and credential isolation.
+- **Graceful Shutdown**: Idempotent termination coordinator drains active simulation tasks and WebSocket clients within bounded timeouts.
+- **Deterministic Fault Recovery**: Categorizes failures into `NORMAL_RESTART`, `TRANSIENT_FAILURE`, `CONFIGURATION_FAILURE`, `DEPENDENCY_FAILURE`, `SAFETY_CONFIGURATION_FAILURE`, and `UNKNOWN_FAILURE`. Safety configuration breaches trigger hard recovery blocks (`RECOVERY = BLOCKED`).
+- **Deterministic Rollback**: Comprehensive operational runbook ([Disaster Recovery Spec](docs/deployment/d9-disaster-recovery.md)) covering failure detection, promotion halt, previous release identification, and smoke test confirmation.
+- **Release Management Guide**: [Release Engineering Specification](docs/deployment/d9-release-management.md)
+- **Hardened Docker Deployment**:
+  ```bash
+  docker run -p 8080:8080 --restart unless-stopped --security-opt no-new-privileges:true --cap-drop ALL --rm skyvanta-ai:latest
+  ```
+- **Endpoints**:
+  - Health Probe: `GET /health`
+  - Readiness Probe: `GET /ready`
+  - Release Status: `GET /api/v1/release`
+  - Telemetry Stream: `WS /api/v1/telemetry/ws`
+
+> [!IMPORTANT]
+> **Simulation-Only Notice**: SkyVanta AI is a software-in-the-loop autonomous landing intelligence platform. The deployed service does not directly control physical aircraft hardware.
 
 ---
 
