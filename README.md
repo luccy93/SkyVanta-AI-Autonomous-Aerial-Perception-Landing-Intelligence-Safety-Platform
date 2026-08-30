@@ -1,18 +1,27 @@
-# SkyVanta AI — Autonomous Aerial Perception, Landing Intelligence & Safety Platform
+# SkyVanta AI — Enterprise Autonomous Landing Intelligence & Digital Twin Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![CI Status](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml)
-[![Tests Passing](https://img.shields.io/badge/tests-261%20passed-brightgreen.svg)](tests/)
+[![Tests Passing](https://img.shields.io/badge/tests-437%20passed-brightgreen.svg)](tests/)
 
 **Developer / Creator:** SkyVanta-AI / Devendraprasad  
-**Repository:** [https://github.com/luccy93/SkyVanta-AI](https://github.com/luccy93/SkyVanta-AI)
+**Repository:** [https://github.com/luccy93/SkyVanta-AI](https://github.com/luccy93/SkyVanta-AI)  
+**Documentation:** [`docs/`](docs/) | **System Architecture:** [`docs/architecture/`](docs/architecture/skyvanta-system-architecture.md) | **MNC Showcase:** [`docs/showcase/`](docs/showcase/)
 
 ---
 
 ## 1. System Overview
 
-**SkyVanta AI (Volumes V1–V9)** is a modular, deterministic, simulation-first computer vision, 15-state sensor fusion, and autonomous landing intelligence platform. It provides end-to-end aerial target perception, 6-DoF fiducial pose estimation, SE(3) spatial frame graph transformation, Error-State Extended Kalman Filter (ESEKF) inertial fusion, 12-state hierarchical landing supervision, and closed-loop digital twin scenario validation.
+**SkyVanta AI (Volumes V1–V9, Deployment Phases D1–D9)** is a modular, deterministic, simulation-first computer vision, 15-state sensor fusion, and autonomous landing intelligence platform. It provides end-to-end aerial target perception, 6-DoF fiducial pose estimation, SE(3) spatial frame graph transformation, Error-State Extended Kalman Filter (ESEKF) inertial fusion, 12-state hierarchical landing supervision, and closed-loop digital twin scenario validation.
+
+```text
+ROBOTICS ARCHITECTURE:
+V1 (Foundation) → V2 (Perception) → V3 (Tracking) → V4 (PnP 6-DoF) → V5 (SE3) → V6 (15-State ESEKF) → V7 (Safety FSM) → V8 (Flight Interface) → V9 (Digital Twin)
+
+DEPLOYMENT & RELIABILITY ARCHITECTURE:
+Docker Container → Render Cloud → FastAPI Backend → 20 Hz Telemetry WebSocket → Security & Auth → Observability → Pre-Flight Verification & Disaster Recovery
+```
 
 ### Core Architectural Capabilities:
 * **Multi-Cue Perception Pipeline (V2)**: Multi-cue candidate fusion combining YOLO deep learning inference (with strict offline weight checking) with MOG2 background subtraction, Farneback dense optical flow, and Canny edge scoring.
@@ -23,6 +32,7 @@
 * **Landing Intelligence & Safety Supervisor (V7)**: 12-state operational Finite State Machine (FSM) enforcing hard safety invariants (e.g. irrevocable abort-climb invariants upon sensor dropout or excessive lateral velocity).
 * **Flight Interface & Safety Boundary (V8)**: Monotonic command sequencing, rate limiting ($\le 25\text{Hz}$), and multi-layer authorization safety gates (`allow_external: false`).
 * **Digital Twin & Scenario Validation (V9)**: 6-DoF vehicle kinematics, sensor noise models (Gaussian, random walk drift, bias, latency queues), Monte Carlo reproducibility, and deterministic scenario engine.
+* **Release Engineering & Disaster Recovery (D9)**: Pre-flight release verification, boot-time invariant validation, graceful shutdown, deterministic recovery classification, and rollback runbooks.
 
 ---
 
@@ -31,7 +41,7 @@
 ```
 SkyVanta-AI/
 ├── .github/                      # CI/CD Workflows
-│   └── workflows/ci.yml         # Matrix Regression Pipeline (Python 3.10-3.12)
+│   └── workflows/ci.yml         # Matrix Regression Pipeline (Python 3.10-3.12) & Release Gate
 ├── skyvanta/                     # Production Modular Package
 │   ├── core/                    # Immutable Types, Config Models, Exceptions, Logging
 │   ├── perception/              # YOLO / Motion Detectors, Optical Flow, Candidate Fusion
@@ -42,18 +52,25 @@ SkyVanta-AI/
 │   ├── intelligence/            # 12-State Landing FSM, Safety Supervisor, Command Translation
 │   ├── flight/                  # Flight Authorizer, Command Rate Limiter, Mock Autopilot
 │   ├── simulation/              # Digital Twin Vehicle, Synthetic Sensors, Scenario Engine
+│   ├── deployment/              # FastAPI REST, 20 Hz WebSocket, Auth, Observability, Release
 │   └── pipeline/                # Video Ingestion, Demo Runner, HUD Compositor
 ├── config/                      # YAML Configuration Files
 │   └── default.yaml             # Authoritative Platform Configuration
 ├── cpp/                         # Standalone C++ Subsystem & CMake Build
 │   ├── CMakeLists.txt
 │   └── src/main.cpp             # C++ Kalman Demo & HUD Drawing Engine
+├── docs/                        # Comprehensive Architecture, Audits, Deployment & Showcase
+│   ├── architecture/            # V1-V9 & Complete System Architecture Specs
+│   ├── deployment/              # D1-D9 Production Deployment & DR Specifications
+│   ├── showcase/                # MNC Technical Presentation, Interview & Resume Guides
+│   └── audit/                   # Milestone Verification Audits
 ├── legacy/                      # Preserved Characterization Baseline Prototypes
 │   ├── main.py
 │   └── main.cpp
-├── tests/                       # 250+ Automated Pytest Test Harness
+├── tests/                       # 437+ Automated Pytest Test Harness
 │   ├── unit/                    # Subsystem Unit & Mathematical Invariant Tests
 │   ├── integration/             # Closed-Loop Integration & V9 Regression Suites
+│   ├── deployment/              # D1-D9 Production Deployment, Smoke & Failure-Injection Suites
 │   └── characterization/       # Numerical Parity Against Baseline
 ├── pyproject.toml               # Python Packaging & Tool Configuration
 ├── requirements.txt             # Core Runtime Dependencies
@@ -276,13 +293,29 @@ SkyVanta AI incorporates a deterministic release verification, graceful lifecycl
   - Release Status: `GET /api/v1/release`
   - Telemetry Stream: `WS /api/v1/telemetry/ws`
 
+---
+
+## 11. Technical Presentation & Portfolio Showcase
+
+SkyVanta AI includes a complete documentation and presentation suite designed for MNC technical reviews, software engineering interviews, and systems architecture evaluations:
+
+* **Complete System Architecture**: [`docs/architecture/skyvanta-system-architecture.md`](docs/architecture/skyvanta-system-architecture.md)
+* **Technical Overview & Problem Statement**: [`docs/showcase/technical-overview.md`](docs/showcase/technical-overview.md)
+* **Technical Interview Guide**: [`docs/showcase/interview-walkthrough.md`](docs/showcase/interview-walkthrough.md)
+* **Architectural Decisions & Deep Dive**: [`docs/showcase/architecture-explanation.md`](docs/showcase/architecture-explanation.md)
+* **Resume Project Descriptions**: [`docs/showcase/resume-entry.md`](docs/showcase/resume-entry.md)
+* **Live Demonstration Script (3–5 min)**: [`docs/showcase/demo-script.md`](docs/showcase/demo-script.md)
+* **Demonstration & Portfolio Asset Checklist**: [`docs/showcase/demo-checklist.md`](docs/showcase/demo-checklist.md)
+* **Final Production Acceptance Report**: [`docs/audit/d10-final-production-acceptance.md`](docs/audit/d10-final-production-acceptance.md)
+
 > [!IMPORTANT]
 > **Simulation-Only Notice**: SkyVanta AI is a software-in-the-loop autonomous landing intelligence platform. The deployed service does not directly control physical aircraft hardware.
 
 ---
 
-## 11. License
+## 12. License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 Copyright (c) 2026 **SkyVanta-AI / Devendraprasad**
+
