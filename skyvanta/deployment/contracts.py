@@ -165,3 +165,74 @@ class TelemetryStreamPacket(BaseModel):
     is_safe: bool = Field(
         description="Real-time multi-invariant safety evaluation boolean.",
     )
+
+
+class DeploymentReadinessContract(BaseModel):
+    """Formal schema for the /ready operational readiness contract."""
+
+    ready: bool = Field(
+        description="Whether the service is prepared to accept traffic.",
+    )
+    status: str = Field(
+        description="Readiness status ('ready' or 'not_ready').",
+    )
+    service: str = Field(
+        default="skyvanta-api",
+        description="Deployment service identifier.",
+    )
+    version: str = Field(
+        description="Software release version string.",
+    )
+    environment: str = Field(
+        description="Deployment environment (development, testing, production).",
+    )
+    checks: Dict[str, bool] = Field(
+        description="Detailed verification results for genuine operational dependencies.",
+    )
+    uptime_sec: float = Field(
+        description="Elapsed wall-clock uptime in seconds.",
+    )
+    timestamp_sec: float = Field(
+        description="Unix timestamp when readiness was evaluated.",
+    )
+
+
+class MetricsResponseContract(BaseModel):
+    """Formal schema for the /api/v1/metrics operational monitoring endpoint."""
+
+    service: str = Field(
+        default="skyvanta-api",
+        description="Deployment service identifier.",
+    )
+    version: str = Field(
+        description="Software release version.",
+    )
+    environment: str = Field(
+        description="Active deployment tier.",
+    )
+    timestamp_sec: float = Field(
+        description="Evaluation timestamp in seconds.",
+    )
+    http: Dict[str, Any] = Field(
+        description="HTTP request volume, status breakdown, and latency percentiles.",
+    )
+    errors: Dict[str, int] = Field(
+        description="Categorized error counters.",
+    )
+    websockets: Dict[str, Any] = Field(
+        description="WebSocket connection counts, stream rates, and packet metrics.",
+    )
+    scenarios: Dict[str, Any] = Field(
+        description="Scenario execution metrics and compliance summaries.",
+    )
+    system: Dict[str, Any] = Field(
+        description="Runtime system resources (CPU, memory, uptime, version).",
+    )
+    warnings: List[str] = Field(
+        default_factory=list,
+        description="Active operational resource and performance threshold warnings.",
+    )
+    recent_events: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Recent structured operational audit events (sanitized, bounded).",
+    )

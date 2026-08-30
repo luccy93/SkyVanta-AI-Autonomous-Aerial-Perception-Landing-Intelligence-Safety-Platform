@@ -59,32 +59,90 @@ class SimulationService:
         run_id = f"api_run_{request.scenario_name}_{request.seed}_{request_id or int(time.time())}"
 
         t_wall_start = time.perf_counter()
-        engine = ScenarioEngine()
-        exp_result, _ = engine.run(scenario, run_id=run_id)
-        duration_wall = time.perf_counter() - t_wall_start
+        from skyvanta.deployment.observability.events import EventType, event_logger
+        from skyvanta.deployment.observability.metrics import metrics_collector
 
-        realtime_factor = (
-            float(exp_result.duration_sec) / max(duration_wall, 1e-5)
-            if duration_wall > 0
-            else 0.0
+        event_logger.emit(
+            event_type=EventType.SCENARIO_STARTED,
+            message=f"Starting scenario execution '{scenario.name}' [RunID: {run_id}]",
+            severity="INFO",
+            details={
+                "scenario_name": scenario.name,
+                "seed": scenario.seed,
+                "duration_sec": scenario.duration_sec,
+                "request_id": request_id,
+            },
         )
 
-        is_success = (
-            exp_result.status.value.lower() == "success_landed"
-            and len(exp_result.safety_violations) == 0
-        )
+        try:
+            engine = ScenarioEngine()
+            exp_result, _ = engine.run(scenario, run_id=run_id)
+            duration_wall = time.perf_counter() - t_wall_start
 
-        return ScenarioRunResponse(
-            run_id=exp_result.run_id,
-            scenario_name=exp_result.scenario_id,
-            status=exp_result.status.value,
-            seed=exp_result.seed,
-            duration_sim_sec=round(float(exp_result.duration_sec), 3),
-            duration_wall_sec=round(float(duration_wall), 4),
-            realtime_factor=round(float(realtime_factor), 2),
-            final_position_error_m=round(float(exp_result.metrics.final_position_error_m), 4),
-            rmse_position_m=round(float(exp_result.metrics.rmse_position_m), 4),
-            safety_violations_count=len(exp_result.safety_violations),
-            is_success=is_success,
-            error_message=None,
-        )
+            realtime_factor = (
+                float(exp_result.duration_sec) / max(duration_wall, 1e-5)
+                if duration_wall > 0
+                else 0.0
+            )
+
+            is_success = (
+                exp_result.status.value.lower() == "success_landed"
+                and len(exp_result.safety_violations) == 0
+            )
+
+            # Record quantitative metrics
+            metrics_collector.record_scenario_run(
+                scenario_name=scenario.name,
+                is_success=is_success,
+                duration_wall_sec=round(float(duration_wall), 4),
+                realtime_factor=round(float(realtime_factor), 2),
+                final_position_error_m=round(float(exp_result.metrics.final_position_error_m), 4),
+                decision_status=exp_result.status.value,
+            )
+
+            event_logger.emit(
+                event_type=EventType.SCENARIO_COMPLETED,
+                message=f"Scenario '{scenario.name}' completed with status {exp_result.status.value}",
+                severity="INFO" if is_success else "WARNING",
+                details={
+                    "scenario_name": scenario.name,
+                    "status": exp_result.status.value,
+                    "is_success": is_success,
+                    "duration_sim_sec": round(float(exp_result.duration_sec), 3),
+                    "duration_wall_sec": round(float(duration_wall), 4),
+                    "realtime_factor": round(float(realtime_factor), 2),
+                    "final_position_error_m": round(float(exp_result.metrics.final_position_error_m), 4),
+                    "safety_violations_count": len(exp_result.safety_violations),
+                    "request_id": request_id,
+                },
+            )
+
+            return ScenarioRunResponse(
+                run_id=exp_result.run_id,
+                scenario_name=exp_result.scenario_id,
+                status=exp_result.status.value,
+                seed=exp_result.seed,
+                duration_sim_sec=round(float(exp_result.duration_sec), 3),
+                duration_wall_sec=round(float(duration_wall), 4),
+                realtime_factor=round(float(realtime_factor), 2),
+                final_position_error_m=round(float(exp_result.metrics.final_position_error_m), 4),
+                rmse_position_m=round(float(exp_result.metrics.rmse_position_m), 4),
+                safety_violations_count=len(exp_result.safety_violations),
+                is_success=is_success,
+                error_message=None,
+            )
+        except Exception as exc:
+            duration_wall = time.perf_counter() - t_wall_start
+            metrics_collector.record_error("scenario")
+            event_logger.emit(
+                event_type=EventType.SCENARIO_FAILED,
+                message=f"Scenario '{scenario.name}' failed with exception: {str(exc)}",
+                severity="ERROR",
+                details={
+                    "scenario_name": scenario.name,
+                    "error_type": exc.__class__.__name__,
+                    "error_message": str(exc),
+                    "request_id": request_id,
+                },
+            )
+            raise

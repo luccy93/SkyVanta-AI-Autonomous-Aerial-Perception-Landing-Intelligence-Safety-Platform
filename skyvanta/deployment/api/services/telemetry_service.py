@@ -342,10 +342,15 @@ class ScenarioBroadcastChannel:
 
     def broadcast(self, packet: Optional[TelemetryStreamPacket]) -> None:
         """Broadcasts a telemetry packet to all subscriber queues with bounded backpressure."""
+        from skyvanta.deployment.observability.metrics import metrics_collector
+        if packet is not None:
+            metrics_collector.record_ws_packet_sent(1)
+
         for queue in list(self.subscribers):
             if queue.full():
                 try:
                     _ = queue.get_nowait()
+                    metrics_collector.record_ws_packet_dropped(1)
                 except Exception:
                     pass
             try:

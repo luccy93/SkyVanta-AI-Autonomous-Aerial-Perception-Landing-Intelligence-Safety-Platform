@@ -77,6 +77,42 @@ class DeploymentConfig(BaseModel):
         default=True,
         description="Whether to attach HTTP security headers (X-Content-Type-Options, etc.).",
     )
+    slow_request_threshold_ms: float = Field(
+        default=1000.0,
+        ge=10.0,
+        le=60000.0,
+        description="Threshold in milliseconds above which an HTTP request triggers a SLOW_REQUEST event.",
+    )
+    cpu_warning_threshold_pct: float = Field(
+        default=85.0,
+        ge=10.0,
+        le=100.0,
+        description="CPU utilization percentage triggering an operational warning event.",
+    )
+    memory_warning_threshold_mb: float = Field(
+        default=512.0,
+        ge=50.0,
+        le=16384.0,
+        description="Process RSS memory in MB triggering an operational warning event.",
+    )
+    enable_rate_limiting: bool = Field(
+        default=True,
+        description="Whether to enable application-level REST API token bucket rate limiting.",
+    )
+    rate_limit_requests_per_min: int = Field(
+        default=120,
+        ge=1,
+        le=10000,
+        description="Maximum allowed REST requests per minute per client IP.",
+    )
+    git_commit: Optional[str] = Field(
+        default=None,
+        description="Optional Git commit hash override.",
+    )
+    build_timestamp: Optional[str] = Field(
+        default=None,
+        description="Optional build timestamp override.",
+    )
     debug: bool = Field(
         default=False,
         description="Debug mode (strictly prohibited in production).",
@@ -199,6 +235,31 @@ class DeploymentConfig(BaseModel):
 
         enable_metrics = os.getenv("SKYVANTA_ENABLE_METRICS", "true").lower() in ("true", "1", "yes")
         enable_security_headers = os.getenv("SKYVANTA_ENABLE_SECURITY_HEADERS", "true").lower() in ("true", "1", "yes")
+        enable_rate_limiting = os.getenv("SKYVANTA_ENABLE_RATE_LIMITING", "true").lower() in ("true", "1", "yes")
+
+        try:
+            slow_request_ms = float(os.getenv("SKYVANTA_SLOW_REQUEST_THRESHOLD_MS", "1000.0"))
+        except ValueError:
+            slow_request_ms = 1000.0
+
+        try:
+            cpu_warning_pct = float(os.getenv("SKYVANTA_CPU_WARNING_PCT", "85.0"))
+        except ValueError:
+            cpu_warning_pct = 85.0
+
+        try:
+            mem_warning_mb = float(os.getenv("SKYVANTA_MEMORY_WARNING_MB", "512.0"))
+        except ValueError:
+            mem_warning_mb = 512.0
+
+        try:
+            rate_limit_rpm = int(os.getenv("SKYVANTA_RATE_LIMIT_RPM", "120"))
+        except ValueError:
+            rate_limit_rpm = 120
+
+        git_commit = os.getenv("GIT_COMMIT") or os.getenv("RENDER_GIT_COMMIT") or os.getenv("GITHUB_SHA")
+        build_timestamp = os.getenv("BUILD_TIMESTAMP") or os.getenv("RENDER_DEPLOY_TIMESTAMP")
+
         debug = os.getenv("SKYVANTA_DEBUG", "false").lower() in ("true", "1", "yes")
 
         # In production, debug is strictly False
@@ -217,6 +278,13 @@ class DeploymentConfig(BaseModel):
             ws_idle_timeout_sec=ws_idle_timeout,
             enable_metrics=enable_metrics,
             enable_security_headers=enable_security_headers,
+            slow_request_threshold_ms=slow_request_ms,
+            cpu_warning_threshold_pct=cpu_warning_pct,
+            memory_warning_threshold_mb=mem_warning_mb,
+            enable_rate_limiting=enable_rate_limiting,
+            rate_limit_requests_per_min=rate_limit_rpm,
+            git_commit=git_commit,
+            build_timestamp=build_timestamp,
             debug=debug,
             # Immutable safety invariants
             allow_external=False,

@@ -36,8 +36,12 @@ async def telemetry_websocket_endpoint(
     telemetry_service: TelemetryService = Depends(get_telemetry_service_ws),
 ) -> None:
     """Streams real-time 6-DoF digital twin telemetry packets over WebSocket."""
+    from skyvanta.deployment.observability.events import EventType, event_logger
+    from skyvanta.deployment.observability.metrics import metrics_collector
+
     await websocket.accept()
     conn_id = f"ws_{uuid4().hex[:8]}"
+    t_conn_start = time.monotonic()
 
     scenario_name = scenario.strip() if (scenario and scenario.strip()) else "nominal_landing"
     logger.info("WebSocket connected [ID: %s, Scenario: %s]", conn_id, scenario_name)
@@ -49,6 +53,7 @@ async def telemetry_websocket_endpoint(
             conn_id,
             config.max_ws_clients,
         )
+        metrics_collector.record_error("websocket")
         await websocket.send_json({
             "type": "error",
             "code": "MAX_CLIENTS_EXCEEDED",
@@ -65,6 +70,7 @@ async def telemetry_websocket_endpoint(
             conn_id,
             scenario_name,
         )
+        metrics_collector.record_error("websocket")
         await websocket.send_json({
             "type": "error",
             "code": "SCENARIO_NOT_FOUND",
@@ -74,10 +80,25 @@ async def telemetry_websocket_endpoint(
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
-    # 2. Configure streaming rate
+    # 3. Configure streaming rate & record connection
     stream_rate_hz = rate_hz if (rate_hz is not None and rate_hz > 0) else config.telemetry_rate_hz
+    metrics_collector.set_ws_configured_rate(stream_rate_hz)
+    metrics_collector.record_ws_connect()
 
-    # 3. Obtain broadcast channel & subscribe client queue
+    event_logger.emit(
+        event_type=EventType.WEBSOCKET_CONNECTED,
+        message=f"WebSocket client connected [ID: {conn_id}, Scenario: {scenario_name}]",
+        severity="INFO",
+        details={
+            "connection_id": conn_id,
+            "scenario_name": scenario_name,
+            "stream_rate_hz": stream_rate_hz,
+            "active_connections": metrics_collector.ws_active_connections,
+        },
+        environment=config.environment.value,
+    )
+
+    # 4. Obtain broadcast channel & subscribe client queue
     channel = await telemetry_service.get_or_create_channel(
         scenario_name=scenario_name,
         rate_hz=stream_rate_hz,
@@ -86,7 +107,7 @@ async def telemetry_websocket_endpoint(
     channel.subscribe(client_queue)
     telemetry_service.register_connection(websocket)
 
-    # 4. Asynchronous Send and Receive loops
+    # 5. Asynchronous Send and Receive loops
     async def send_loop():
         try:
             while True:
@@ -119,6 +140,7 @@ async def telemetry_websocket_endpoint(
                         elif msg_type == "close":
                             break
                         else:
+                            metrics_collector.record_error("websocket")
                             await websocket.send_json({
                                 "type": "error",
                                 "code": "UNSUPPORTED_MESSAGE",
@@ -126,6 +148,8 @@ async def telemetry_websocket_endpoint(
                                 "connection_id": conn_id,
                             })
                     else:
+                        metrics_collector.record_error("websocket")
+                        metrics_collector.record_ws_heartbeat_failure()
                         await websocket.send_json({
                             "type": "error",
                             "code": "INVALID_FORMAT",
@@ -140,6 +164,15 @@ async def telemetry_websocket_endpoint(
                             "connection_id": conn_id,
                         })
                     else:
+                        metrics_collector.record_error("websocket")
+                        metrics_collector.record_ws_heartbeat_failure()
+                        event_logger.emit(
+                            event_type=EventType.HEARTBEAT_FAILURE,
+                            message=f"Malformed WebSocket message from {conn_id}",
+                            severity="WARNING",
+                            details={"connection_id": conn_id},
+                            environment=config.environment.value,
+                        )
                         await websocket.send_json({
                             "type": "error",
                             "code": "MALFORMED_MESSAGE",
@@ -162,7 +195,22 @@ async def telemetry_websocket_endpoint(
     finally:
         channel.unsubscribe(client_queue)
         telemetry_service.unregister_connection(websocket)
-        logger.info("WebSocket disconnected [ID: %s, Scenario: %s]", conn_id, scenario_name)
+        conn_duration = max(0.0, time.monotonic() - t_conn_start)
+        metrics_collector.record_ws_disconnect(round(conn_duration, 3))
+
+        event_logger.emit(
+            event_type=EventType.WEBSOCKET_DISCONNECTED,
+            message=f"WebSocket client disconnected [ID: {conn_id}, Duration: {round(conn_duration, 2)}s]",
+            severity="INFO",
+            details={
+                "connection_id": conn_id,
+                "scenario_name": scenario_name,
+                "duration_sec": round(conn_duration, 2),
+                "active_connections": metrics_collector.ws_active_connections,
+            },
+            environment=config.environment.value,
+        )
+        logger.info("WebSocket disconnected [ID: %s, Scenario: %s, Duration: %.2fs]", conn_id, scenario_name, conn_duration)
         try:
             await websocket.close()
         except Exception:

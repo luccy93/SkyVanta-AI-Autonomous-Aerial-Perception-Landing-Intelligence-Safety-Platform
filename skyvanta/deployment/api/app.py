@@ -1,5 +1,3 @@
-"""FastAPI application factory and centralized exception handling."""
-
 from contextlib import asynccontextmanager
 import logging
 from typing import Any, Dict, Optional
@@ -12,9 +10,17 @@ from skyvanta.core.exceptions import SkyVantaError
 from skyvanta.deployment.config import DeploymentConfig
 from skyvanta.deployment.health import HealthCheckService
 from skyvanta.deployment.logging import DeploymentLogger
+from skyvanta.deployment.observability import (
+    EventType,
+    ObservabilityMiddleware,
+    RateLimitingMiddleware,
+    event_logger,
+    metrics_collector,
+)
 from skyvanta.deployment.api.middleware import RequestIDMiddleware, SecurityHeadersMiddleware
 from skyvanta.deployment.api.routes import (
     health_router,
+    metrics_router,
     scenarios_router,
     simulation_router,
     system_router,
@@ -45,6 +51,18 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        event_logger.emit(
+            event_type=EventType.SERVICE_STARTED,
+            message=f"SkyVanta AI API server starting in {app_config.environment.value} mode",
+            severity="INFO",
+            details={
+                "host": app_config.host,
+                "port": app_config.port,
+                "version": __version__,
+                "environment": app_config.environment.value,
+            },
+            environment=app_config.environment.value,
+        )
         logger.info(
             "SkyVanta AI API server starting in %s mode (Host: %s, Port: %d)",
             app_config.environment.value,
@@ -53,6 +71,13 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
         )
         yield
         logger.info("SkyVanta AI API server shutting down.")
+        event_logger.emit(
+            event_type=EventType.SERVICE_SHUTDOWN,
+            message="SkyVanta AI API server shutting down",
+            severity="INFO",
+            details={"environment": app_config.environment.value},
+            environment=app_config.environment.value,
+        )
         if hasattr(app.state, "telemetry_service") and app.state.telemetry_service is not None:
             await app.state.telemetry_service.shutdown()
 
@@ -60,6 +85,10 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
         {
             "name": "Health",
             "description": "Infrastructure liveness, readiness, and safety boundary verification.",
+        },
+        {
+            "name": "Observability",
+            "description": "Operational metrics, latency percentiles, and system monitoring.",
         },
         {
             "name": "System",
@@ -105,20 +134,37 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
         allow_credentials=True,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["*"],
-        expose_headers=["X-Request-ID"],
+        expose_headers=["X-Request-ID", "X-Response-Time-Ms"],
     )
 
     # 2. Defensive HTTP Security Headers
     if app_config.enable_security_headers:
         app.add_middleware(SecurityHeadersMiddleware)
 
-    # 3. Request Correlation ID Middleware
+    # 3. Observability & Latency Tracking Middleware
+    app.add_middleware(
+        ObservabilityMiddleware,
+        slow_request_threshold_ms=app_config.slow_request_threshold_ms,
+        environment=app_config.environment.value,
+    )
+
+    # 4. API Rate Limiting Middleware
+    if app_config.enable_rate_limiting:
+        app.add_middleware(
+            RateLimitingMiddleware,
+            enabled=app_config.enable_rate_limiting,
+            requests_per_minute=app_config.rate_limit_requests_per_min,
+            environment=app_config.environment.value,
+        )
+
+    # 5. Request Correlation ID Middleware
     app.add_middleware(RequestIDMiddleware)
 
-    # 3. Exception Handlers
+    # 6. Exception Handlers
     @app.exception_handler(ScenarioNotFoundError)
     async def scenario_not_found_handler(request: Request, exc: ScenarioNotFoundError):
         req_id = getattr(request.state, "request_id", "unknown")
+        metrics_collector.record_error("scenario")
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={
@@ -132,6 +178,7 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
     @app.exception_handler(SkyVantaError)
     async def skyvanta_domain_error_handler(request: Request, exc: SkyVantaError):
         req_id = getattr(request.state, "request_id", "unknown")
+        metrics_collector.record_error("internal")
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
@@ -145,6 +192,8 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
         req_id = getattr(request.state, "request_id", "unknown")
+        if exc.status_code >= 500:
+            metrics_collector.record_error("internal")
         return JSONResponse(
             status_code=exc.status_code,
             content={
@@ -158,6 +207,7 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc: RequestValidationError):
         req_id = getattr(request.state, "request_id", "unknown")
+        metrics_collector.record_error("validation")
         return JSONResponse(
             status_code=422,
             content={
@@ -172,6 +222,7 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
     @app.exception_handler(Exception)
     async def generic_exception_handler(request: Request, exc: Exception):
         req_id = getattr(request.state, "request_id", "unknown")
+        metrics_collector.record_error("internal")
         logger.error("Unhandled exception for request %s: %s", req_id, str(exc), exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -183,8 +234,9 @@ def create_app(config: Optional[DeploymentConfig] = None) -> FastAPI:
             headers={"X-Request-ID": req_id},
         )
 
-    # 4. Include Routers
+    # 7. Include Routers
     app.include_router(health_router)
+    app.include_router(metrics_router)
     app.include_router(system_router)
     app.include_router(scenarios_router)
     app.include_router(simulation_router)

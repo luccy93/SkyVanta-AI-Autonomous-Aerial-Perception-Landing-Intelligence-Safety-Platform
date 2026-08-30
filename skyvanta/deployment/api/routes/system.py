@@ -33,6 +33,14 @@ class SystemInfoResponse(BaseModel):
     environment: str = Field(
         description="Active deployment tier (development, testing, production).",
     )
+    git_commit: str = Field(
+        default="unknown",
+        description="Safe Git commit identifier.",
+    )
+    build_timestamp: str = Field(
+        default="2026-08-30T00:00:00Z",
+        description="Build or packaging timestamp.",
+    )
     hardware_access: bool = Field(
         default=False,
         description="Hardware connectivity status (strictly False).",
@@ -61,11 +69,17 @@ async def get_system_info(
     config: DeploymentConfig = Depends(get_deployment_config),
 ) -> SystemInfoResponse:
     """Returns application name, version, environment, and capability manifest."""
+    from skyvanta.deployment.observability.runtime import system_resource_monitor
+    git_commit = config.git_commit or system_resource_monitor.get_git_commit()
+    build_ts = config.build_timestamp or system_resource_monitor.get_build_timestamp()
+
     return SystemInfoResponse(
         application="SkyVanta AI",
         version=__version__,
         api_version="v1",
         environment=config.environment.value,
+        git_commit=git_commit,
+        build_timestamp=build_ts,
         hardware_access=False,
         network_model_download=False,
         safety_boundary_enforced=True,

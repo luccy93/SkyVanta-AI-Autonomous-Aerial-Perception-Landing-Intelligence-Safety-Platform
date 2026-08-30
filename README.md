@@ -239,6 +239,15 @@ SkyVanta AI is deployed to a managed cloud container environment with automated 
 - **Health Verification**: `https://skyvanta-ai.onrender.com/health`
 - **Safety Boundary**: Immutable software isolation (`hardware_access: false`, `allow_external: false`, `allow_network_download: false`).
 
+### 7. Production Observability, Monitoring & Operations
+SkyVanta AI incorporates an integrated application-level observability subsystem (`skyvanta.deployment.observability`) designed for zero-SSH operations:
+- **Operations Handbook**: [Production Observability Specification](docs/deployment/d7-observability-operations.md)
+- **Liveness Probe**: `GET /health` (Process liveness, simulation catalog status, and immutable safety locks)
+- **Readiness Probe**: `GET /ready` (Verifies catalog load, engine readiness, and dependency sanity before routing traffic)
+- **Operational Metrics**: `GET /api/v1/metrics` (Bounded cardinality request counts, exact latency percentiles p50/p95/p99, WebSocket stats, scenario execution summaries, and system resources)
+- **Structured JSON Logging**: Single-line JSON stdout logging in production for structured cloud ingestion (Render Log Streams / Datadog / CloudWatch). Long-term log archiving is delegated to the cloud platform.
+- **Bounded Retention**: In-memory metric counters and audit events utilize bounded ring buffers ($O(1)$ memory).
+
 ---
 
 ## 11. License
