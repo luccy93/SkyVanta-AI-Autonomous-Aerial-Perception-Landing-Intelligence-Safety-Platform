@@ -1,0 +1,494 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1680" width="100%" height="100%" style="background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="50%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#0b0f19" />
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="input-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0e7490" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="percept-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="spatial-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6d28d9" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="fusion-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b45309" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="intel-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#be123c" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="flight-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#047857" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="twin-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#701a75" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#d946ef" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="deploy-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f766e" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#14b8a6" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="infra-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#334155" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.2" />
+    </linearGradient>
+    <linearGradient id="hazard-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7f1d1d" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#450a0a" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Arrow Marker Definition -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrow-hazard" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#ef4444" />
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+    </marker>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1200" height="1680" fill="url(#bg-grad)" />
+
+  <!-- Subtle Blueprint Grid -->
+  <g stroke="#1e293b" stroke-width="1" stroke-opacity="0.4">
+    <path d="M 0,100 L 1200,100 M 0,200 L 1200,200 M 0,300 L 1200,300 M 0,400 L 1200,400 M 0,500 L 1200,500 M 0,600 L 1200,600 M 0,700 L 1200,700 M 0,800 L 1200,800 M 0,900 L 1200,900 M 0,1000 L 1200,1000 M 0,1100 L 1200,1100 M 0,1200 L 1200,1200 M 0,1300 L 1200,1300 M 0,1400 L 1200,1400 M 0,1500 L 1200,1500 M 0,1600 L 1200,1600" />
+    <path d="M 100,0 L 100,1680 M 200,0 L 200,1680 M 300,0 L 300,1680 M 400,0 L 400,1680 M 500,0 L 500,1680 M 600,0 L 600,1680 M 700,0 L 700,1680 M 800,0 L 800,1680 M 900,0 L 900,1680 M 1000,0 L 1000,1680 M 1100,0 L 1100,1680" />
+  </g>
+
+  <!-- ======================================================================== -->
+  <!-- HEADER & TITLE SECTION                                                   -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 40)">
+    <rect x="0" y="0" width="1080" height="95" rx="12" fill="#0f172a" stroke="#334155" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Title & Subtitle -->
+    <text x="30" y="42" fill="#f8fafc" font-size="28" font-weight="800" letter-spacing="1">SKYVANTA AI — SYSTEM ARCHITECTURE</text>
+    <text x="30" y="70" fill="#94a3b8" font-size="14" font-weight="500">Autonomous Landing Intelligence Platform • Software-in-the-Loop (SIL) • Volumes V1–V9 + Phases D1–D10</text>
+    
+    <!-- Badges -->
+    <g transform="translate(790, 24)">
+      <rect x="0" y="0" width="115" height="26" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="1" />
+      <text x="57" y="17" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="middle">437 TESTS PASS</text>
+      
+      <rect x="125" y="0" width="135" height="26" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="1" />
+      <text x="192" y="17" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">56.3x REALTIME</text>
+
+      <rect x="0" y="32" width="260" height="24" rx="6" fill="#312e81" stroke="#818cf8" stroke-width="1" />
+      <text x="130" y="48" fill="#e0e7ff" font-size="10.5" font-weight="700" text-anchor="middle">V1–V9 FROZEN • D1–D10 PRODUCTION</text>
+    </g>
+  </g>
+
+  <!-- ======================================================================== -->
+  <!-- 1. INPUT LAYER                                                           -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 160)">
+    <rect x="0" y="0" width="1080" height="100" rx="10" fill="url(#input-grad)" stroke="#06b6d4" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="130" height="24" rx="4" fill="#0891b2" />
+    <text x="85" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">1. INPUT LAYER</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- Camera Input -->
+      <rect x="0" y="0" width="310" height="55" rx="6" fill="#0f172a" stroke="#0891b2" stroke-width="1" />
+      <text x="15" y="24" fill="#67e8f9" font-size="13" font-weight="700">Monocular Camera Ingestion</text>
+      <text x="15" y="44" fill="#94a3b8" font-size="11">Synthetic Frames / Video Stream (30 FPS)</text>
+
+      <!-- IMU Input -->
+      <rect x="345" y="0" width="310" height="55" rx="6" fill="#0f172a" stroke="#0891b2" stroke-width="1" />
+      <text x="360" y="24" fill="#67e8f9" font-size="13" font-weight="700">Inertial Measurement Unit (IMU)</text>
+      <text x="360" y="44" fill="#94a3b8" font-size="11">100 Hz Accel (f_b) &amp; Gyro (ω_b) Kinematics</text>
+
+      <!-- Synthetic Sensors -->
+      <rect x="690" y="0" width="330" height="55" rx="6" fill="#0f172a" stroke="#0891b2" stroke-width="1" />
+      <text x="705" y="24" fill="#67e8f9" font-size="13" font-weight="700">Synthetic Sensors &amp; Altimeter</text>
+      <text x="705" y="44" fill="#94a3b8" font-size="11">1D Rangefinder • Baro • Noise Injected</text>
+    </g>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <line x1="300" y1="260" x2="300" y2="290" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="600" y1="260" x2="600" y2="445" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow)" />
+  <text x="610" y="375" fill="#f59e0b" font-size="10" font-weight="600">100 Hz IMU Stream</text>
+
+  <!-- ======================================================================== -->
+  <!-- 2. PERCEPTION ENGINE (Volume V2, V3)                                      -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 295)">
+    <rect x="0" y="0" width="1080" height="115" rx="10" fill="url(#percept-grad)" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="225" height="24" rx="4" fill="#2563eb" />
+    <text x="132" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">2. PERCEPTION &amp; TRACKING (V2–V3)</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- Fiducial Detection -->
+      <rect x="0" y="0" width="235" height="68" rx="6" fill="#0f172a" stroke="#2563eb" stroke-width="1" />
+      <text x="15" y="24" fill="#93c5fd" font-size="13" font-weight="700">Fiducial Detection</text>
+      <text x="15" y="44" fill="#cbd5e1" font-size="11">ArUco / AprilTag Detections</text>
+      <text x="15" y="58" fill="#64748b" font-size="10">Sub-pixel corner refinement</text>
+
+      <!-- Motion Detection -->
+      <rect x="255" y="0" width="235" height="68" rx="6" fill="#0f172a" stroke="#2563eb" stroke-width="1" />
+      <text x="270" y="24" fill="#93c5fd" font-size="13" font-weight="700">Motion &amp; Optical Flow</text>
+      <text x="270" y="44" fill="#cbd5e1" font-size="11">MOG2 Background Subtraction</text>
+      <text x="270" y="58" fill="#64748b" font-size="10">Farnebäck dense flow energy</text>
+
+      <!-- Object Detection -->
+      <rect x="510" y="0" width="235" height="68" rx="6" fill="#0f172a" stroke="#2563eb" stroke-width="1" />
+      <text x="525" y="24" fill="#93c5fd" font-size="13" font-weight="700">Object Detection</text>
+      <text x="525" y="44" fill="#cbd5e1" font-size="11">Offline YOLO Nano Fusion</text>
+      <text x="525" y="58" fill="#64748b" font-size="10">Strict local weights check</text>
+
+      <!-- Multi-Target Tracking -->
+      <rect x="765" y="0" width="255" height="68" rx="6" fill="#0f172a" stroke="#2563eb" stroke-width="1" />
+      <text x="780" y="24" fill="#93c5fd" font-size="13" font-weight="700">Multi-Target Tracking</text>
+      <text x="780" y="44" fill="#cbd5e1" font-size="11">8-State Kalman + One-Euro Filter</text>
+      <text x="780" y="58" fill="#64748b" font-size="10">Hungarian life-cycle manager</text>
+    </g>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <line x1="300" y1="410" x2="300" y2="445" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="310" y="432" fill="#93c5fd" font-size="10" font-weight="600">Tracked 2D Corners</text>
+
+  <!-- ======================================================================== -->
+  <!-- 3. SPATIAL ESTIMATION (Volume V4, V5)                                     -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 450)">
+    <rect x="0" y="0" width="1080" height="115" rx="10" fill="url(#spatial-grad)" stroke="#8b5cf6" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="230" height="24" rx="4" fill="#7c3aed" />
+    <text x="135" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">3. SPATIAL ESTIMATION (V4–V5)</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- 6-DoF PnP -->
+      <rect x="0" y="0" width="235" height="68" rx="6" fill="#0f172a" stroke="#7c3aed" stroke-width="1" />
+      <text x="15" y="24" fill="#c4b5fd" font-size="13" font-weight="700">6-DoF PnP Pose Solver</text>
+      <text x="15" y="44" fill="#cbd5e1" font-size="11">SQPnP &amp; Planar IPPE Solvers</text>
+      <text x="15" y="58" fill="#64748b" font-size="10">Pose quality &amp; reproj. rating</text>
+
+      <!-- Camera Calibration -->
+      <rect x="255" y="0" width="235" height="68" rx="6" fill="#0f172a" stroke="#7c3aed" stroke-width="1" />
+      <text x="270" y="24" fill="#c4b5fd" font-size="13" font-weight="700">Camera Calibration</text>
+      <text x="270" y="44" fill="#cbd5e1" font-size="11">Intrinsic Matrix K (fx, fy, cx, cy)</text>
+      <text x="270" y="58" fill="#64748b" font-size="10">Brown-Conrady distortion</text>
+
+      <!-- SE(3) Lie Group -->
+      <rect x="510" y="0" width="235" height="68" rx="6" fill="#0f172a" stroke="#7c3aed" stroke-width="1" />
+      <text x="525" y="24" fill="#c4b5fd" font-size="13" font-weight="700">SE(3) Transforms</text>
+      <text x="525" y="44" fill="#cbd5e1" font-size="11">Lie Group SE(3) Transformations</text>
+      <text x="525" y="58" fill="#64748b" font-size="10">Homogeneous 4x4 matrices</text>
+
+      <!-- Coordinate Frames -->
+      <rect x="765" y="0" width="255" height="68" rx="6" fill="#0f172a" stroke="#7c3aed" stroke-width="1" />
+      <text x="780" y="24" fill="#c4b5fd" font-size="13" font-weight="700">Frame Graph Engine</text>
+      <text x="780" y="44" fill="#cbd5e1" font-size="11">BFS Frame Tree Traversal</text>
+      <text x="780" y="58" fill="#64748b" font-size="10">CAMERA • BODY • PAD • WORLD (ENU)</text>
+    </g>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <line x1="300" y1="565" x2="300" y2="600" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="310" y="587" fill="#c4b5fd" font-size="10" font-weight="600">Visual Pose Measurement (30 Hz)</text>
+
+  <!-- ======================================================================== -->
+  <!-- 4. SENSOR FUSION (Volume V6)                                              -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 605)">
+    <rect x="0" y="0" width="1080" height="115" rx="10" fill="url(#fusion-grad)" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="220" height="24" rx="4" fill="#d97706" />
+    <text x="130" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">4. SENSOR FUSION (Volume V6)</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- 15-State ESEKF -->
+      <rect x="0" y="0" width="200" height="68" rx="6" fill="#0f172a" stroke="#d97706" stroke-width="1" />
+      <text x="15" y="24" fill="#fcd34d" font-size="13" font-weight="700">15-State ESEKF</text>
+      <text x="15" y="44" fill="#cbd5e1" font-size="11">Pos(3) • Vel(3) • Att(SO3)</text>
+      <text x="15" y="58" fill="#64748b" font-size="10">Accel Bias(3) • Gyro Bias(3)</text>
+
+      <!-- SO(3) Lie Group -->
+      <rect x="215" y="0" width="195" height="68" rx="6" fill="#0f172a" stroke="#d97706" stroke-width="1" />
+      <text x="230" y="24" fill="#fcd34d" font-size="13" font-weight="700">SO(3) Manifold</text>
+      <text x="230" y="44" fill="#cbd5e1" font-size="11">Lie Algebra Exp / Log Maps</text>
+      <text x="230" y="58" fill="#64748b" font-size="10">Zero gimbal lock / singularity</text>
+
+      <!-- IMU Propagation -->
+      <rect x="425" y="0" width="200" height="68" rx="6" fill="#0f172a" stroke="#d97706" stroke-width="1" />
+      <text x="440" y="24" fill="#fcd34d" font-size="13" font-weight="700">IMU Propagation</text>
+      <text x="440" y="44" fill="#cbd5e1" font-size="11">100 Hz Runge-Kutta Integrator</text>
+      <text x="440" y="58" fill="#64748b" font-size="10">Discrete covariance prediction</text>
+
+      <!-- Visual Update -->
+      <rect x="640" y="0" width="190" height="68" rx="6" fill="#0f172a" stroke="#d97706" stroke-width="1" />
+      <text x="655" y="24" fill="#fcd34d" font-size="13" font-weight="700">Visual Update</text>
+      <text x="655" y="44" fill="#cbd5e1" font-size="11">30 Hz Kalman Injection</text>
+      <text x="655" y="58" fill="#64748b" font-size="10">Nonlinear measurement H</text>
+
+      <!-- NIS Gating -->
+      <rect x="845" y="0" width="175" height="68" rx="6" fill="#0f172a" stroke="#d97706" stroke-width="1" />
+      <text x="860" y="24" fill="#fcd34d" font-size="13" font-weight="700">NIS Outlier Gating</text>
+      <text x="860" y="44" fill="#cbd5e1" font-size="11">Chi-Squared (χ²) Test</text>
+      <text x="860" y="58" fill="#64748b" font-size="10">Mahalanobis gate ≤ 16.81</text>
+    </g>
+  </g>
+
+  <!-- Arrow 4 -> 5 -->
+  <line x1="540" y1="720" x2="540" y2="755" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="550" y="742" fill="#fcd34d" font-size="10" font-weight="600">15-State Fused State + 3σ Covariance</text>
+
+  <!-- ======================================================================== -->
+  <!-- 5. LANDING INTELLIGENCE & SAFETY (Volume V7)                             -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 760)">
+    <rect x="0" y="0" width="1080" height="115" rx="10" fill="url(#intel-grad)" stroke="#f43f5e" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="280" height="24" rx="4" fill="#e11d48" />
+    <text x="160" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">5. LANDING INTELLIGENCE &amp; SAFETY (V7)</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- 12-State FSM -->
+      <rect x="0" y="0" width="245" height="68" rx="6" fill="#0f172a" stroke="#e11d48" stroke-width="1" />
+      <text x="15" y="24" fill="#fda4af" font-size="13" font-weight="700">12-State State Machine</text>
+      <text x="15" y="44" fill="#cbd5e1" font-size="11">SEARCHING • ALIGN • DESCEND</text>
+      <text x="15" y="58" fill="#64748b" font-size="10">Deterministic phase progression</text>
+
+      <!-- Safety Supervisor -->
+      <rect x="260" y="0" width="245" height="68" rx="6" fill="#0f172a" stroke="#e11d48" stroke-width="1" />
+      <text x="275" y="24" fill="#fda4af" font-size="13" font-weight="700">Safety Supervisor</text>
+      <text x="275" y="44" fill="#cbd5e1" font-size="11">Covariance Gating (σ_pos &lt; 0.25m)</text>
+      <text x="275" y="58" fill="#f43f5e" font-size="10" font-weight="700">ABORT -> never DESCEND</text>
+
+      <!-- Health Analysis -->
+      <rect x="520" y="0" width="245" height="68" rx="6" fill="#0f172a" stroke="#e11d48" stroke-width="1" />
+      <text x="535" y="24" fill="#fda4af" font-size="13" font-weight="700">Health &amp; Staleness</text>
+      <text x="535" y="44" fill="#cbd5e1" font-size="11">Sensor Dropout Detection (&gt;0.5s)</text>
+      <text x="535" y="58" fill="#64748b" font-size="10">Velocity &amp; tilt envelope audit</text>
+
+      <!-- Landing Decision -->
+      <rect x="780" y="0" width="240" height="68" rx="6" fill="#0f172a" stroke="#e11d48" stroke-width="1" />
+      <text x="795" y="24" fill="#fda4af" font-size="13" font-weight="700">Landing Decision</text>
+      <text x="795" y="44" fill="#cbd5e1" font-size="11">Touchdown Velocity Damping</text>
+      <text x="795" y="58" fill="#64748b" font-size="10">Autonomous touch verification</text>
+    </g>
+  </g>
+
+  <!-- Arrow 5 -> 6 -->
+  <line x1="540" y1="875" x2="540" y2="910" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="550" y="897" fill="#fda4af" font-size="10" font-weight="600">Supervisory Action Setpoint</text>
+
+  <!-- ======================================================================== -->
+  <!-- 6. FLIGHT INTERFACE (Volume V8)                                           -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 915)">
+    <rect x="0" y="0" width="1080" height="115" rx="10" fill="url(#flight-grad)" stroke="#10b981" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="235" height="24" rx="4" fill="#059669" />
+    <text x="137" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">6. FLIGHT INTERFACE (Volume V8)</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- Command Validation -->
+      <rect x="0" y="0" width="200" height="68" rx="6" fill="#0f172a" stroke="#059669" stroke-width="1" />
+      <text x="15" y="24" fill="#6ee7b7" font-size="13" font-weight="700">Command Validation</text>
+      <text x="15" y="44" fill="#cbd5e1" font-size="11">Kinematic Bounds Clamping</text>
+      <text x="15" y="58" fill="#64748b" font-size="10">Velocity &amp; accel envelopes</text>
+
+      <!-- Authorization Gate -->
+      <rect x="215" y="0" width="200" height="68" rx="6" fill="#0f172a" stroke="#059669" stroke-width="1" />
+      <text x="230" y="24" fill="#6ee7b7" font-size="13" font-weight="700">Authorization Gate</text>
+      <text x="230" y="44" fill="#cbd5e1" font-size="11">Multi-Layer Safety Gate</text>
+      <text x="230" y="58" fill="#10b981" font-size="10" font-weight="700">allow_external: false</text>
+
+      <!-- Rate Limiting -->
+      <rect x="430" y="0" width="200" height="68" rx="6" fill="#0f172a" stroke="#059669" stroke-width="1" />
+      <text x="445" y="24" fill="#6ee7b7" font-size="13" font-weight="700">Rate Limiting</text>
+      <text x="445" y="44" fill="#cbd5e1" font-size="11">Monotonic Sequence IDs</text>
+      <text x="445" y="58" fill="#64748b" font-size="10">Command rate cap ≤ 25 Hz</text>
+
+      <!-- Telemetry Formatter -->
+      <rect x="645" y="0" width="190" height="68" rx="6" fill="#0f172a" stroke="#059669" stroke-width="1" />
+      <text x="660" y="24" fill="#6ee7b7" font-size="13" font-weight="700">Telemetry Formatter</text>
+      <text x="660" y="44" fill="#cbd5e1" font-size="11">Validated Packet Builder</text>
+      <text x="660" y="58" fill="#64748b" font-size="10">NaN/Inf sanitization</text>
+
+      <!-- Mock Autopilot -->
+      <rect x="850" y="0" width="170" height="68" rx="6" fill="#0f172a" stroke="#059669" stroke-width="1" />
+      <text x="865" y="24" fill="#6ee7b7" font-size="13" font-weight="700">Mock Autopilot</text>
+      <text x="865" y="44" fill="#cbd5e1" font-size="11">Software-in-the-Loop</text>
+      <text x="865" y="58" fill="#64748b" font-size="10">Pure internal routing</text>
+    </g>
+  </g>
+
+  <!-- Arrow 6 -> 7 -->
+  <line x1="540" y1="1030" x2="540" y2="1065" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="550" y="1052" fill="#6ee7b7" font-size="10" font-weight="600">Simulated Actuation Dynamics</text>
+
+  <!-- ======================================================================== -->
+  <!-- 7. DIGITAL TWIN & SIMULATION (Volume V9)                                  -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 1070)">
+    <rect x="0" y="0" width="1080" height="115" rx="10" fill="url(#twin-grad)" stroke="#d946ef" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="285" height="24" rx="4" fill="#a21caf" />
+    <text x="162" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">7. DIGITAL TWIN SIMULATION (Volume V9)</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- Scenario Engine -->
+      <rect x="0" y="0" width="245" height="68" rx="6" fill="#0f172a" stroke="#a21caf" stroke-width="1" />
+      <text x="15" y="24" fill="#f0abfc" font-size="13" font-weight="700">Scenario Engine</text>
+      <text x="15" y="44" fill="#cbd5e1" font-size="11">12 Benchmark Scenarios</text>
+      <text x="15" y="58" fill="#64748b" font-size="10">Deterministic Monte Carlo</text>
+
+      <!-- Vehicle Dynamics -->
+      <rect x="260" y="0" width="245" height="68" rx="6" fill="#0f172a" stroke="#a21caf" stroke-width="1" />
+      <text x="275" y="24" fill="#f0abfc" font-size="13" font-weight="700">Vehicle Dynamics</text>
+      <text x="275" y="44" fill="#cbd5e1" font-size="11">6-DoF Rigid-Body Physics</text>
+      <text x="275" y="58" fill="#64748b" font-size="10">Aerodynamic drag &amp; crosswinds</text>
+
+      <!-- Sensor Simulation -->
+      <rect x="520" y="0" width="245" height="68" rx="6" fill="#0f172a" stroke="#a21caf" stroke-width="1" />
+      <text x="535" y="24" fill="#f0abfc" font-size="13" font-weight="700">Sensor Simulation</text>
+      <text x="535" y="44" fill="#cbd5e1" font-size="11">Gaussian + Bias Drift Models</text>
+      <text x="535" y="58" fill="#64748b" font-size="10">Latency queues &amp; jitter</text>
+
+      <!-- Fault Injection -->
+      <rect x="780" y="0" width="240" height="68" rx="6" fill="#0f172a" stroke="#a21caf" stroke-width="1" />
+      <text x="795" y="24" fill="#f0abfc" font-size="13" font-weight="700">Fault Injection Engine</text>
+      <text x="795" y="44" fill="#cbd5e1" font-size="11">Visual Occlusion &amp; Dropouts</text>
+      <text x="795" y="58" fill="#64748b" font-size="10">Runaway velocity triggers</text>
+    </g>
+  </g>
+
+  <!-- Arrow 7 -> 8 -->
+  <line x1="540" y1="1185" x2="540" y2="1220" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="550" y="1207" fill="#f0abfc" font-size="10" font-weight="600">Simulated State &amp; Metrics Feed</text>
+
+  <!-- ======================================================================== -->
+  <!-- 8. DEPLOYMENT & OBSERVABILITY (Phases D1–D10)                            -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 1225)">
+    <rect x="0" y="0" width="1080" height="115" rx="10" fill="url(#deploy-grad)" stroke="#14b8a6" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="310" height="24" rx="4" fill="#0d9488" />
+    <text x="175" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">8. DEPLOYMENT &amp; OBSERVABILITY (D1–D10)</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- FastAPI REST -->
+      <rect x="0" y="0" width="165" height="68" rx="6" fill="#0f172a" stroke="#0d9488" stroke-width="1" />
+      <text x="15" y="24" fill="#5eead4" font-size="13" font-weight="700">FastAPI REST</text>
+      <text x="15" y="44" fill="#cbd5e1" font-size="11">Async API Routing</text>
+      <text x="15" y="58" fill="#64748b" font-size="10">/health, /scenarios</text>
+
+      <!-- 20 Hz WebSocket -->
+      <rect x="175" y="0" width="170" height="68" rx="6" fill="#0f172a" stroke="#0d9488" stroke-width="1" />
+      <text x="190" y="24" fill="#5eead4" font-size="13" font-weight="700">20 Hz WebSocket</text>
+      <text x="190" y="44" fill="#cbd5e1" font-size="11">Real-Time Telemetry</text>
+      <text x="190" y="58" fill="#64748b" font-size="10">Bounded backpressure</text>
+
+      <!-- Authentication -->
+      <rect x="355" y="0" width="170" height="68" rx="6" fill="#0f172a" stroke="#0d9488" stroke-width="1" />
+      <text x="370" y="24" fill="#5eead4" font-size="13" font-weight="700">Authentication</text>
+      <text x="370" y="44" fill="#cbd5e1" font-size="11">SHA-256 RBAC Scopes</text>
+      <text x="370" y="58" fill="#64748b" font-size="10">Constant-time check</text>
+
+      <!-- Observability -->
+      <rect x="535" y="0" width="170" height="68" rx="6" fill="#0f172a" stroke="#0d9488" stroke-width="1" />
+      <text x="550" y="24" fill="#5eead4" font-size="13" font-weight="700">Observability</text>
+      <text x="550" y="44" fill="#cbd5e1" font-size="11">p50/p95/p99 Latency</text>
+      <text x="550" y="58" fill="#64748b" font-size="10">JSON Structured Logs</text>
+
+      <!-- Release Verification -->
+      <rect x="715" y="0" width="150" height="68" rx="6" fill="#0f172a" stroke="#0d9488" stroke-width="1" />
+      <text x="730" y="24" fill="#5eead4" font-size="13" font-weight="700">Release Gate</text>
+      <text x="730" y="44" fill="#cbd5e1" font-size="11">Startup Validator</text>
+      <text x="730" y="58" fill="#64748b" font-size="10">Pre-flight checks</text>
+
+      <!-- Disaster Recovery -->
+      <rect x="875" y="0" width="145" height="68" rx="6" fill="#0f172a" stroke="#0d9488" stroke-width="1" />
+      <text x="890" y="24" fill="#5eead4" font-size="13" font-weight="700">Disaster Recovery</text>
+      <text x="890" y="44" fill="#cbd5e1" font-size="11">Failure Classifier</text>
+      <text x="890" y="58" fill="#64748b" font-size="10">Deterministic rollback</text>
+    </g>
+  </g>
+
+  <!-- Arrow 8 -> 9 -->
+  <line x1="540" y1="1340" x2="540" y2="1375" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="550" y="1362" fill="#5eead4" font-size="10" font-weight="600">Containerized Runtime Delivery</text>
+
+  <!-- ======================================================================== -->
+  <!-- 9. INFRASTRUCTURE & CLOUD                                                 -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 1380)">
+    <rect x="0" y="0" width="1080" height="100" rx="10" fill="url(#infra-grad)" stroke="#64748b" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="-12" width="220" height="24" rx="4" fill="#475569" />
+    <text x="130" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">9. INFRASTRUCTURE &amp; CLOUD</text>
+
+    <!-- Sub-boxes -->
+    <g transform="translate(30, 25)">
+      <!-- Hardened Docker -->
+      <rect x="0" y="0" width="245" height="55" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1" />
+      <text x="15" y="24" fill="#e2e8f0" font-size="13" font-weight="700">Hardened Docker</text>
+      <text x="15" y="44" fill="#94a3b8" font-size="11">Non-root UID 1000 • cap_drop ALL</text>
+
+      <!-- CI/CD Workflows -->
+      <rect x="260" y="0" width="245" height="55" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1" />
+      <text x="275" y="24" fill="#e2e8f0" font-size="13" font-weight="700">GitHub Actions CI/CD</text>
+      <text x="275" y="44" fill="#94a3b8" font-size="11">Python 3.10-3.12 • Matrix Gate</text>
+
+      <!-- Render Cloud -->
+      <rect x="520" y="0" width="245" height="55" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1" />
+      <text x="535" y="24" fill="#e2e8f0" font-size="13" font-weight="700">Render Cloud Platform</text>
+      <text x="535" y="44" fill="#94a3b8" font-size="11">Declarative render.yaml blueprint</text>
+
+      <!-- TLS 1.3 HTTPS/WSS -->
+      <rect x="780" y="0" width="240" height="55" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1" />
+      <text x="795" y="24" fill="#e2e8f0" font-size="13" font-weight="700">Managed TLS 1.3 Encryption</text>
+      <text x="795" y="44" fill="#94a3b8" font-size="11">HTTPS &amp; WSS Secure Transport</text>
+    </g>
+  </g>
+
+  <!-- ======================================================================== -->
+  <!-- 10. SAFETY BOUNDARY CALLOUT                                              -->
+  <!-- ======================================================================== -->
+  <g transform="translate(60, 1510)">
+    <rect x="0" y="0" width="1080" height="120" rx="10" fill="url(#hazard-grad)" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,4" filter="url(#shadow)" />
+    
+    <!-- Warning Badge -->
+    <rect x="20" y="-12" width="290" height="24" rx="4" fill="#dc2626" />
+    <text x="165" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">⚠️ IMMUTABLE SAFETY BOUNDARY</text>
+
+    <!-- Content -->
+    <g transform="translate(30, 25)">
+      <!-- Left Box -->
+      <rect x="0" y="0" width="490" height="75" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1" />
+      <text x="20" y="26" fill="#fca5a5" font-size="13" font-weight="800">PHYSICAL HARDWARE: DISCONNECTED</text>
+      <text x="20" y="46" fill="#fecaca" font-size="11">hardware_access: false • hardware_disconnected: true</text>
+      <text x="20" y="63" fill="#94a3b8" font-size="10.5">Zero serial port bridges • Zero physical PWM/ESC drivers • Zero MAVLink sockets</text>
+
+      <!-- Right Box -->
+      <rect x="530" y="0" width="490" height="75" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1" />
+      <text x="20" y="26" fill="#fca5a5" font-size="13" font-weight="800">SOFTWARE-IN-THE-LOOP (SIL) ENFORCEMENT</text>
+      <text x="20" y="46" fill="#fecaca" font-size="11">allow_external: false • allow_network_download: false</text>
+      <text x="20" y="63" fill="#94a3b8" font-size="10.5">External flight actuation blocked by software assertion invariants</text>
+    </g>
+  </g>
+</svg>

@@ -103,6 +103,10 @@ Deployment API
 Observability
 ```
 
+<div align="center">
+  <img src="docs/assets/skyvanta-architecture.svg" alt="SkyVanta AI Complete System Architecture" width="100%" />
+</div>
+
 ```mermaid
 graph TD
     subgraph "SENSORY INGESTION & PERCEPTION"
