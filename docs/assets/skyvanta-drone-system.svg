@@ -1,0 +1,236 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="100%" height="100%" style="background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="50%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#0b0f19" />
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="drone-card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="brain-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0369a1" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.15" />
+    </linearGradient>
+    <linearGradient id="fc-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#047857" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#059669" stop-opacity="0.15" />
+    </linearGradient>
+    <linearGradient id="pad-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- Markers -->
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b" />
+    </marker>
+
+    <!-- Filter -->
+    <filter id="shadow2" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1200" height="700" fill="url(#bg-grad2)" />
+
+  <!-- Grid lines -->
+  <g stroke="#1e293b" stroke-width="1" stroke-opacity="0.35">
+    <path d="M 0,100 L 1200,100 M 0,200 L 1200,200 M 0,300 L 1200,300 M 0,400 L 1200,400 M 0,500 L 1200,500 M 0,600 L 1200,600" />
+    <path d="M 150,0 L 150,700 M 300,0 L 300,700 M 450,0 L 450,700 M 600,0 L 600,700 M 750,0 L 750,700 M 900,0 L 900,700 M 1050,0 L 1050,700" />
+  </g>
+
+  <!-- ======================================================================== -->
+  <!-- HEADER                                                                   -->
+  <!-- ======================================================================== -->
+  <g transform="translate(50, 30)">
+    <rect x="0" y="0" width="1100" height="60" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5" filter="url(#shadow2)" />
+    <text x="25" y="38" fill="#f8fafc" font-size="20" font-weight="800" letter-spacing="0.5">HOW SKYVANTA AI OPERATES ON AN AUTONOMOUS DRONE</text>
+    <text x="730" y="37" fill="#38bdf8" font-size="13" font-weight="700">COMPANION COMPUTER • PERCEPTION BRAIN</text>
+  </g>
+
+  <!-- ======================================================================== -->
+  <!-- MAIN DRONE CARD                                                          -->
+  <!-- ======================================================================== -->
+  <g transform="translate(50, 110)">
+    <rect x="0" y="0" width="760" height="390" rx="12" fill="url(#drone-card-grad)" stroke="#38bdf8" stroke-width="2" filter="url(#shadow2)" />
+    
+    <!-- Title Badge -->
+    <rect x="25" y="-14" width="280" height="26" rx="5" fill="#0284c7" />
+    <text x="165" y="4" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">PHYSICAL DRONE (AIR VEHICLE)</text>
+
+    <!-- Top Sensors Row -->
+    <g transform="translate(30, 25)">
+      <!-- Downward Camera Box -->
+      <rect x="0" y="0" width="335" height="65" rx="8" fill="#0b1329" stroke="#0ea5e9" stroke-width="1.2" />
+      <circle cx="28" cy="32" r="14" fill="#0369a1" stroke="#38bdf8" stroke-width="1.5" />
+      <circle cx="28" cy="32" r="6" fill="#38bdf8" />
+      <text x="52" y="27" fill="#e0f2fe" font-size="13" font-weight="700">Downward-Facing Camera</text>
+      <text x="52" y="46" fill="#94a3b8" font-size="11">Monocular Video Feed (30 FPS, Global Shutter)</text>
+
+      <!-- IMU Sensors Box -->
+      <rect x="365" y="0" width="335" height="65" rx="8" fill="#0b1329" stroke="#f59e0b" stroke-width="1.2" />
+      <rect x="18" y="20" width="22" height="24" rx="4" fill="#b45309" stroke="#fbbf24" stroke-width="1.5" transform="translate(365,0)" />
+      <text x="417" y="27" fill="#fef3c7" font-size="13" font-weight="700">High-Rate IMU Sensor</text>
+      <text x="417" y="46" fill="#94a3b8" font-size="11">100 Hz Accel (f_b) &amp; Gyro (ω_b) Kinematics</text>
+    </g>
+
+    <!-- Arrow Sensors -> Companion Computer -->
+    <line x1="197" y1="90" x2="197" y2="115" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-blue)" />
+    <line x1="562" y1="90" x2="562" y2="115" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
+
+    <!-- SkyVanta AI Companion Computer (The Brain) -->
+    <g transform="translate(30, 115)">
+      <rect x="0" y="0" width="700" height="150" rx="10" fill="url(#brain-grad)" stroke="#0284c7" stroke-width="1.5" />
+      <rect x="15" y="-11" width="330" height="22" rx="4" fill="#0369a1" />
+      <text x="180" y="5" fill="#ffffff" font-size="11" font-weight="800" text-anchor="middle">SKYVANTA AI ONBOARD COMPANION COMPUTER</text>
+
+      <!-- 4 Modules in Brain -->
+      <!-- 1. Vision -->
+      <g transform="translate(15, 25)">
+        <rect x="0" y="0" width="155" height="105" rx="6" fill="#0f172a" stroke="#0ea5e9" stroke-width="1" />
+        <text x="12" y="22" fill="#38bdf8" font-size="12" font-weight="700">1. Vision &amp; PnP</text>
+        <text x="12" y="42" fill="#cbd5e1" font-size="10.5">• Fiducial Detection</text>
+        <text x="12" y="60" fill="#cbd5e1" font-size="10.5">• Sub-pixel Corners</text>
+        <text x="12" y="78" fill="#cbd5e1" font-size="10.5">• SQPnP 6-DoF Pose</text>
+        <text x="12" y="96" fill="#64748b" font-size="9.5">[X, Y, Z, Roll, Pitch, Yaw]</text>
+      </g>
+
+      <!-- 2. ESEKF -->
+      <g transform="translate(185, 25)">
+        <rect x="0" y="0" width="155" height="105" rx="6" fill="#0f172a" stroke="#f59e0b" stroke-width="1" />
+        <text x="12" y="22" fill="#fbbf24" font-size="12" font-weight="700">2. 15-State ESEKF</text>
+        <text x="12" y="42" fill="#cbd5e1" font-size="10.5">• Lie SO(3) Manifold</text>
+        <text x="12" y="60" fill="#cbd5e1" font-size="10.5">• 100 Hz IMU Propag.</text>
+        <text x="12" y="78" fill="#cbd5e1" font-size="10.5">• 30 Hz Visual Update</text>
+        <text x="12" y="96" fill="#64748b" font-size="9.5">3σ Uncertainty Covariance</text>
+      </g>
+
+      <!-- 3. Safety FSM -->
+      <g transform="translate(355, 25)">
+        <rect x="0" y="0" width="155" height="105" rx="6" fill="#0f172a" stroke="#f43f5e" stroke-width="1" />
+        <text x="12" y="22" fill="#f43f5e" font-size="12" font-weight="700">3. Safety FSM</text>
+        <text x="12" y="42" fill="#cbd5e1" font-size="10.5">• 12-State Machine</text>
+        <text x="12" y="60" fill="#cbd5e1" font-size="10.5">• Occlusion Guard</text>
+        <text x="12" y="78" fill="#cbd5e1" font-size="10.5">• Covariance Gating</text>
+        <text x="12" y="96" fill="#fda4af" font-size="9.5" font-weight="700">ABORT -> no DESCEND</text>
+      </g>
+
+      <!-- 4. Guidance -->
+      <g transform="translate(525, 25)">
+        <rect x="0" y="0" width="160" height="105" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1" />
+        <text x="12" y="22" fill="#34d399" font-size="12" font-weight="700">4. Flight Guidance</text>
+        <text x="12" y="42" fill="#cbd5e1" font-size="10.5">• Centering Controller</text>
+        <text x="12" y="60" fill="#cbd5e1" font-size="10.5">• Descent Profiler</text>
+        <text x="12" y="78" fill="#cbd5e1" font-size="10.5">• Rate Limit ≤ 25 Hz</text>
+        <text x="12" y="96" fill="#6ee7b7" font-size="9.5" font-weight="700">Outputs: (vx, vy, vz)</text>
+      </g>
+    </g>
+
+    <!-- Arrow Brain -> Flight Controller -->
+    <line x1="380" y1="265" x2="380" y2="295" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-green)" />
+    <text x="390" y="285" fill="#34d399" font-size="11" font-weight="700">Velocity Setpoints (vx, vy, vz) via UART / MAVLink</text>
+
+    <!-- Flight Controller Box -->
+    <g transform="translate(30, 295)">
+      <rect x="0" y="0" width="700" height="75" rx="8" fill="url(#fc-grad)" stroke="#059669" stroke-width="1.5" />
+      <rect x="15" y="-10" width="310" height="20" rx="4" fill="#047857" />
+      <text x="170" y="4" fill="#ffffff" font-size="10.5" font-weight="800" text-anchor="middle">LOW-LEVEL FLIGHT CONTROLLER (PX4 / PIXHAWK)</text>
+
+      <g transform="translate(20, 20)">
+        <text x="0" y="16" fill="#a7f3d0" font-size="12" font-weight="700">400 Hz Motor PID Rate Loops</text>
+        <text x="0" y="36" fill="#94a3b8" font-size="11">Attitude Stabilization &amp; Gyro Feedback</text>
+
+        <text x="340" y="16" fill="#a7f3d0" font-size="12" font-weight="700">Electronic Speed Controllers (ESCs)</text>
+        <text x="340" y="36" fill="#94a3b8" font-size="11">Drives 4x Brushless Motors to Execute Precision Descent</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ======================================================================== -->
+  <!-- RIGHT PANEL: GROUND CONTROL & TELEMETRY                                  -->
+  <!-- ======================================================================== -->
+  <g transform="translate(840, 110)">
+    <rect x="0" y="0" width="310" height="390" rx="12" fill="#0f172a" stroke="#8b5cf6" stroke-width="1.5" filter="url(#shadow2)" />
+    
+    <rect x="20" y="-14" width="220" height="26" rx="5" fill="#7c3aed" />
+    <text x="130" y="4" fill="#ffffff" font-size="11.5" font-weight="800" text-anchor="middle">GROUND CONTROL &amp; CLOUD</text>
+
+    <!-- Cloud / Observability -->
+    <g transform="translate(20, 25)">
+      <!-- Render Cloud API -->
+      <rect x="0" y="0" width="270" height="95" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1" />
+      <text x="15" y="24" fill="#c7d2fe" font-size="13" font-weight="700">Cloud Microservice API</text>
+      <text x="15" y="44" fill="#94a3b8" font-size="11">• FastAPI REST Engine</text>
+      <text x="15" y="62" fill="#94a3b8" font-size="11">• Live on Render (TLS 1.3)</text>
+      <text x="15" y="80" fill="#94a3b8" font-size="11">• Interactive Swagger UI (/docs)</text>
+
+      <!-- 20 Hz WebSocket Stream -->
+      <rect x="0" y="110" width="270" height="95" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1" />
+      <text x="15" y="24" transform="translate(0, 110)" fill="#c7d2fe" font-size="13" font-weight="700">20 Hz Real-Time Telemetry</text>
+      <text x="15" y="44" transform="translate(0, 110)" fill="#94a3b8" font-size="11">• 3D Position [X, Y, Z] &amp; Vel</text>
+      <text x="15" y="62" transform="translate(0, 110)" fill="#94a3b8" font-size="11">• RPY Attitude &amp; Uncertainty</text>
+      <text x="15" y="80" transform="translate(0, 110)" fill="#94a3b8" font-size="11">• Bounded Queue Backpressure</text>
+
+      <!-- Observability Metrics -->
+      <rect x="0" y="220" width="270" height="120" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1" />
+      <text x="15" y="24" transform="translate(0, 220)" fill="#c7d2fe" font-size="13" font-weight="700">Production Observability</text>
+      <text x="15" y="44" transform="translate(0, 220)" fill="#94a3b8" font-size="11">• Latency p50/p95/p99 (6.69ms)</text>
+      <text x="15" y="62" transform="translate(0, 220)" fill="#94a3b8" font-size="11">• Memory Footprint: 88.38 MB</text>
+      <text x="15" y="80" transform="translate(0, 220)" fill="#94a3b8" font-size="11">• 437 Passing Automated Tests</text>
+      <text x="15" y="98" transform="translate(0, 220)" fill="#34d399" font-size="11" font-weight="700">100% REGRESSION PASS RATE</text>
+    </g>
+  </g>
+
+  <!-- ======================================================================== -->
+  <!-- BOTTOM: LANDING PAD & VISUAL LINK                                        -->
+  <!-- ======================================================================== -->
+  <!-- Visual Cone / Line of sight -->
+  <path d="M 247,175 L 120,530 L 680,530 Z" fill="#0284c7" fill-opacity="0.08" stroke="#38bdf8" stroke-width="1" stroke-dasharray="4,4" />
+  <text x="350" y="515" fill="#38bdf8" font-size="12" font-weight="700" text-anchor="middle">Visual Tracking Ray (Monocular 6-DoF Pose)</text>
+
+  <!-- Landing Pad Ground Surface -->
+  <g transform="translate(100, 530)">
+    <rect x="0" y="0" width="600" height="130" rx="10" fill="url(#pad-grad)" stroke="#64748b" stroke-width="1.5" filter="url(#shadow2)" />
+    
+    <!-- Fiducial Target Box -->
+    <rect x="210" y="15" width="180" height="100" rx="6" fill="#000000" stroke="#ffffff" stroke-width="3" />
+    <rect x="230" y="30" width="30" height="30" fill="#ffffff" />
+    <rect x="330" y="30" width="30" height="30" fill="#ffffff" />
+    <rect x="275" y="50" width="50" height="45" fill="#ffffff" />
+    
+    <text x="300" y="105" fill="#38bdf8" font-size="11" font-weight="800" text-anchor="middle">ARUCO / APRILTAG PAD (0.20m)</text>
+
+    <!-- Details Left/Right -->
+    <text x="30" y="55" fill="#e2e8f0" font-size="13" font-weight="700">GROUND TARGET DOCK</text>
+    <text x="30" y="75" fill="#94a3b8" font-size="11">Stationary Pad or Moving Vessel</text>
+
+    <text x="420" y="55" fill="#e2e8f0" font-size="13" font-weight="700">TOUCHDOWN ACCURACY</text>
+    <text x="420" y="75" fill="#34d399" font-size="12" font-weight="700">&lt; 0.014 m RMSE Position</text>
+    <text x="420" y="93" fill="#94a3b8" font-size="11">Touchdown Speed: ≤ 0.20 m/s</text>
+  </g>
+
+  <!-- Hazard / SIL Callout Banner Bottom Right -->
+  <g transform="translate(730, 530)">
+    <rect x="0" y="0" width="420" height="130" rx="10" fill="#450a0a" fill-opacity="0.3" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,4" filter="url(#shadow2)" />
+    <rect x="15" y="-10" width="220" height="20" rx="4" fill="#dc2626" />
+    <text x="125" y="4" fill="#ffffff" font-size="10" font-weight="800" text-anchor="middle">SAFETY BOUNDARY ENFORCED</text>
+    
+    <text x="20" y="35" fill="#fca5a5" font-size="12" font-weight="800">SOFTWARE-IN-THE-LOOP (SIL) MODE</text>
+    <text x="20" y="55" fill="#fecaca" font-size="11">• hardware_access: false (actuators locked)</text>
+    <text x="20" y="73" fill="#fecaca" font-size="11">• allow_external: false (external commands blocked)</text>
+    <text x="20" y="91" fill="#fecaca" font-size="11">• Zero physical flight risk during software research</text>
+    <text x="20" y="112" fill="#94a3b8" font-size="10.5">Benchtop tests conducted with propellers removed</text>
+  </g>
+</svg>

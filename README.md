@@ -39,13 +39,20 @@ The system combines calibrated monocular computer vision, Lie-group $\text{SE}(3
 
 ## 2. Project Overview
 
-Autonomous vertical drone recovery represents one of the most critical challenges in modern autonomous aviation. In GPS-denied environments (maritime vessels, urban canyons, industrial infrastructure), conventional satellite navigation fails. 
+Autonomous vertical drone recovery represents one of the most critical challenges in modern autonomous aviation. In GPS-denied environments (maritime vessels, urban canyons, indoor industrial hangars), conventional satellite navigation completely fails.
 
-SkyVanta AI delivers an end-to-end software pipeline that:
-* **Perceives Landing Pads**: Detects fiducial markers (ArUco / AprilTag) and estimates 6-DoF relative pose ($\mathbf{R} \in \text{SO}(3), \mathbf{t} \in \mathbb{R}^3$) using infinitesimal plane-based (IPPE) and sequential quadratic programming (SQPnP) solvers.
-* **Fuses High-Rate Sensors**: Tightly fuses 100 Hz IMU kinematics with 30 Hz monocular visual pose measurements and 1D altimetry inside a 15-state Error-State Extended Kalman Filter ($\text{ESEKF}$) to eliminate orientation singularities and velocity drift.
-* **Guarantees Safety Invariants**: Enforces strict covariance envelope gating ($\sigma_{\text{pos}} < 0.25\text{ m}$) through an audited 12-state safety supervisor, mathematically guaranteeing the invariant `ABORT -> never DESCEND`.
-* **Validates via Digital Twin**: Executes high-fidelity 6-DoF rigid-body simulation with aerodynamic disturbances, random-walk wind gusts, and realistic sensor noise at **56x real-time throughput**.
+SkyVanta AI acts as the **onboard companion-computer perception and intelligence brain** for autonomous drones.
+
+<div align="center">
+  <img src="docs/assets/skyvanta-drone-system.svg" alt="How SkyVanta AI Operates on an Autonomous Drone" width="100%" />
+</div>
+
+### 🛸 How It Works on the Drone (In Simple Terms)
+1. **The Downward Camera & IMU**: A downward-facing camera mounted under the drone captures live video of the ground at 30 FPS, while the drone's IMU measures high-rate accelerations and angular velocities at 100 Hz.
+2. **Visual 6-DoF Localization**: When the drone approaches the landing zone, SkyVanta detects the ground landing pad (ArUco / AprilTag) and computes its exact 3D relative position $[X, Y, Z]$ and heading angle.
+3. **15-State Sensor Fusion (ESEKF)**: Fuses camera vision with 100 Hz IMU inertial data using a Lie-group $\text{SO}(3)$ filter, eliminating camera lag and sensor noise.
+4. **Autonomous Flight Guidance**: The Safety Supervisor generates smooth $(v_x, v_y, v_z)$ velocity setpoints, sending them to the low-level flight controller (PX4 / Pixhawk) to guide the drone down to a soft touchdown with sub-centimeter accuracy.
+5. **Emergency Invariant Protection**: If the landing pad is occluded or crosswinds exceed safety thresholds, SkyVanta instantly commands an emergency climb-out abort, preventing catastrophic ground collisions.
 
 ```text
 SYSTEM DOMAIN BOUNDARIES:
