@@ -508,9 +508,10 @@ SkyVanta AI includes a structured documentation suite specifically designed for 
 
 * **Executive Summary & Problem Statement**: [`docs/showcase/technical-overview.md`](docs/showcase/technical-overview.md)
 * **Technical Interview Narrative Guide**: [`docs/showcase/interview-walkthrough.md`](docs/showcase/interview-walkthrough.md)
+* **Step-by-Step Live Demonstration Guide (3–5 min)**: [`docs/showcase/demo-guide.md`](docs/showcase/demo-guide.md)
 * **Architectural Decisions & Deep Dives**: [`docs/showcase/architecture-explanation.md`](docs/showcase/architecture-explanation.md)
 * **Resume Project Entry Templates**: [`docs/showcase/resume-entry.md`](docs/showcase/resume-entry.md)
-* **Live Technical Demonstration Script (3–5 min)**: [`docs/showcase/demo-script.md`](docs/showcase/demo-script.md)
+* **Live Technical Demonstration Script**: [`docs/showcase/demo-script.md`](docs/showcase/demo-script.md)
 * **Portfolio Presentation Asset Checklist**: [`docs/showcase/demo-checklist.md`](docs/showcase/demo-checklist.md)
 
 ---
