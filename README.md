@@ -1,26 +1,103 @@
 # SkyVanta AI — Enterprise Autonomous Landing Intelligence & Digital Twin Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![CI Status](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml)
-[![Tests Passing](https://img.shields.io/badge/tests-437%20passed-brightgreen.svg)](tests/)
+[![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/downloads/)
+[![CI Pipeline](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/luccy93/SkyVanta-AI/actions/workflows/ci.yml)
+[![Tests Passing](https://img.shields.io/badge/Tests-437%20passed-brightgreen.svg)](tests/)
+[![Architecture: V1–V9 Frozen](https://img.shields.io/badge/Architecture-V1--V9%20Frozen-blueviolet.svg)](docs/architecture/skyvanta-system-architecture.md)
+[![Deployment: D1–D10 Production](https://img.shields.io/badge/Deployment-D1--D10%20Production-success.svg)](docs/audit/d10-final-production-acceptance.md)
+[![Safety: Simulation-Only](https://img.shields.io/badge/Safety-Simulation--First-critical.svg)](#7-safety-architecture--operational-boundaries)
+[![Docker: Hardened Non-Root](https://img.shields.io/badge/Docker-Hardened%20Non--Root-informational.svg)](docs/deployment/d4-production-docker.md)
 
 **Developer / Creator:** SkyVanta-AI / Devendraprasad  
 **Repository:** [https://github.com/luccy93/SkyVanta-AI](https://github.com/luccy93/SkyVanta-AI)  
-**Documentation:** [`docs/`](docs/) | **System Architecture:** [`docs/architecture/`](docs/architecture/skyvanta-system-architecture.md) | **MNC Showcase:** [`docs/showcase/`](docs/showcase/)
+**Documentation:** [`docs/`](docs/) | **System Architecture:** [`docs/architecture/skyvanta-system-architecture.md`](docs/architecture/skyvanta-system-architecture.md) | **MNC Showcase:** [`docs/showcase/`](docs/showcase/)
+
+---
+
+## 🌐 Live Cloud Showcase & Quick Links
+
+| Service Component | Public Cloud URL | Description |
+| :--- | :--- | :--- |
+| **Production REST Service** | [https://skyvanta-ai.onrender.com](https://skyvanta-ai.onrender.com) | Live containerized FastAPI microservice on Render |
+| **Interactive OpenAPI (Swagger)** | [https://skyvanta-ai.onrender.com/docs](https://skyvanta-ai.onrender.com/docs) | Interactive endpoint schema and cURL testbench |
+| **Alternative ReDoc UI** | [https://skyvanta-ai.onrender.com/redoc](https://skyvanta-ai.onrender.com/redoc) | Clean specification viewer for REST contracts |
+| **Infrastructure Health Probe** | [https://skyvanta-ai.onrender.com/health](https://skyvanta-ai.onrender.com/health) | Public liveness, catalog, and safety lock verification |
+| **Readiness Probe** | [https://skyvanta-ai.onrender.com/ready](https://skyvanta-ai.onrender.com/ready) | System dependency and simulation readiness status |
+| **20 Hz Telemetry WebSocket** | `wss://skyvanta-ai.onrender.com/api/v1/telemetry/ws` | Real-time 6-DoF vehicle and FSM state streaming |
+
+---
+
+## ⚡ 60-Second Quick Start
+
+```bash
+# 1. Clone & Install
+git clone https://github.com/luccy93/SkyVanta-AI.git
+cd SkyVanta-AI
+pip install -r requirements.txt && pip install -e .
+
+# 2. Execute Autonomous Landing Simulation Scenario via CLI
+skyvanta --scenario nominal_landing
+
+# 3. Start Backend REST API & Telemetry WebSocket Service
+uvicorn skyvanta.deployment.api.app:app --host 0.0.0.0 --port 8080
+
+# 4. In another terminal: Run Benchmark Scenario via REST API
+curl -X POST http://localhost:8080/api/v1/scenarios/run \
+  -H "Authorization: Bearer sk_test_admin_key_12345" \
+  -H "Content-Type: application/json" \
+  -d '{"scenario_name": "nominal_landing", "seed": 42}'
+```
 
 ---
 
 ## 1. System Overview
 
-**SkyVanta AI (Volumes V1–V9, Deployment Phases D1–D9)** is a modular, deterministic, simulation-first computer vision, 15-state sensor fusion, and autonomous landing intelligence platform. It provides end-to-end aerial target perception, 6-DoF fiducial pose estimation, SE(3) spatial frame graph transformation, Error-State Extended Kalman Filter (ESEKF) inertial fusion, 12-state hierarchical landing supervision, and closed-loop digital twin scenario validation.
+**SkyVanta AI (Volumes V1–V9, Deployment Phases D1–D10)** is a modular, deterministic, simulation-first computer vision, 15-state sensor fusion, and autonomous landing intelligence platform. It provides end-to-end aerial target perception, 6-DoF fiducial pose estimation, SE(3) spatial frame graph transformation, Error-State Extended Kalman Filter (ESEKF) inertial fusion, 12-state hierarchical landing supervision, and closed-loop digital twin scenario validation.
 
-```text
-ROBOTICS ARCHITECTURE:
-V1 (Foundation) → V2 (Perception) → V3 (Tracking) → V4 (PnP 6-DoF) → V5 (SE3) → V6 (15-State ESEKF) → V7 (Safety FSM) → V8 (Flight Interface) → V9 (Digital Twin)
+```mermaid
+graph TD
+    subgraph "DEPLOYMENT & SECURITY ENVELOPE (Phases D1-D10)"
+        Edge["Cloud Ingress / TLS 1.3 (Render / Docker)"]
+        Sec["Security Middleware (SHA-256 Auth / Scopes / Token-Bucket Rate Limit)"]
+        Rel["Reliability (StartupValidator / ShutdownCoordinator / RecoveryManager)"]
+        API["FastAPI REST App (/health, /ready, /api/v1/scenarios, /api/v1/release)"]
+        WS["20 Hz Telemetry WebSocket (/api/v1/telemetry/ws)"]
+        Obs["Observability (Latency Percentiles p50/p95/p99 / JSON Logging)"]
+    end
 
-DEPLOYMENT & RELIABILITY ARCHITECTURE:
-Docker Container → Render Cloud → FastAPI Backend → 20 Hz Telemetry WebSocket → Security & Auth → Observability → Pre-Flight Verification & Disaster Recovery
+    subgraph "FROZEN ROBOTICS CORE (Volumes V1-V9)"
+        DT["V9 Digital Twin 6-DoF Physics & Environment Engine"]
+        Percept["V2 Perception Engine (Fiducial / Motion Contrast / YOLO Offline)"]
+        Track["V3 Multi-Target Kalman Tracking & Life-Cycle Management"]
+        PnP["V4 Monocular 6-DoF PnP Pose Solver (SQPnP / IPPE)"]
+        Spatial["V5 SE(3) Spatial Localization & Frame Graph Engine"]
+        ESEKF["V6 15-State Error-State EKF (Lie Group SO(3) Manifold)"]
+        Intel["V7 Landing Intelligence & 12-State Safety Supervisor FSM"]
+        Flight["V8 Flight Interface (Rate Limiting & Command Authorization)"]
+    end
+
+    Edge --> Sec
+    Sec --> Rel
+    Rel --> API
+    API --> Obs
+    API --> WS
+
+    API --> DT
+    WS --> DT
+
+    DT -->|Synthetic RGB Video Frame| Percept
+    DT -->|100 Hz IMU & Altimeter Stream| ESEKF
+
+    Percept -->|Target Detections| Track
+    Track -->|Confirmed Track Box| PnP
+    PnP -->|Relative Pose T_c_t| Spatial
+    Spatial -->|Fused SE(3) Pose| ESEKF
+
+    ESEKF -->|15-State Navigation State| Intel
+    Intel -->|Supervisory Decision & Landing Phase| Flight
+    Flight -->|Authorized Guidance Command| DT
+    Flight -->|Validated Telemetry Packet| WS
 ```
 
 ### Core Architectural Capabilities:
@@ -32,7 +109,7 @@ Docker Container → Render Cloud → FastAPI Backend → 20 Hz Telemetry WebSoc
 * **Landing Intelligence & Safety Supervisor (V7)**: 12-state operational Finite State Machine (FSM) enforcing hard safety invariants (e.g. irrevocable abort-climb invariants upon sensor dropout or excessive lateral velocity).
 * **Flight Interface & Safety Boundary (V8)**: Monotonic command sequencing, rate limiting ($\le 25\text{Hz}$), and multi-layer authorization safety gates (`allow_external: false`).
 * **Digital Twin & Scenario Validation (V9)**: 6-DoF vehicle kinematics, sensor noise models (Gaussian, random walk drift, bias, latency queues), Monte Carlo reproducibility, and deterministic scenario engine.
-* **Release Engineering & Disaster Recovery (D9)**: Pre-flight release verification, boot-time invariant validation, graceful shutdown, deterministic recovery classification, and rollback runbooks.
+* **Production Acceptance & Disaster Recovery (D10)**: Pre-flight release verification, boot-time invariant validation, graceful shutdown, deterministic recovery classification, and automated rollback runbooks.
 
 ---
 
@@ -61,17 +138,17 @@ SkyVanta-AI/
 │   └── src/main.cpp             # C++ Kalman Demo & HUD Drawing Engine
 ├── docs/                        # Comprehensive Architecture, Audits, Deployment & Showcase
 │   ├── architecture/            # V1-V9 & Complete System Architecture Specs
-│   ├── deployment/              # D1-D9 Production Deployment & DR Specifications
+│   ├── deployment/              # D1-D10 Production Deployment & DR Specifications
 │   ├── showcase/                # MNC Technical Presentation, Interview & Resume Guides
-│   └── audit/                   # Milestone Verification Audits
+│   └── audit/                   # Milestone Verification Audits & Acceptance Reports
 ├── legacy/                      # Preserved Characterization Baseline Prototypes
 │   ├── main.py
 │   └── main.cpp
-├── tests/                       # 437+ Automated Pytest Test Harness
-│   ├── unit/                    # Subsystem Unit & Mathematical Invariant Tests
-│   ├── integration/             # Closed-Loop Integration & V9 Regression Suites
-│   ├── deployment/              # D1-D9 Production Deployment, Smoke & Failure-Injection Suites
-│   └── characterization/       # Numerical Parity Against Baseline
+├── tests/                       # 437 Automated Pytest Test Harness
+│   ├── unit/                    # 345 Subsystem Unit & Mathematical Invariant Tests
+│   ├── integration/             # 42 Closed-Loop Integration & V9 Regression Suites
+│   ├── deployment/              # 45 D1-D10 Production Deployment & Security Suites
+│   └── characterization/       # 5 Numerical Parity Against Baseline Tests
 ├── pyproject.toml               # Python Packaging & Tool Configuration
 ├── requirements.txt             # Core Runtime Dependencies
 └── requirements-dev.txt         # Development & Test Dependencies
@@ -166,10 +243,11 @@ Run the complete deterministic test suite:
 ```bash
 pytest
 ```
-The automated test suite runs **261 tests** across:
-* **Unit Tests**: Group Lie algebra $SO(3)$ & $SE(3)$, PnP geometry, 15-state ESEKF propagation/update, Chi2 innovation gating, 12-state FSM state machine transitions, rate limiter bypass invariants, ENU/NED coordinate transforms.
-* **Integration Tests**: Full closed-loop digital twin execution, multi-sensor pipeline, scenario replay determinism, flight interface authorization gates.
-* **Characterization Tests**: Numerical parity against legacy algorithms.
+The automated test suite runs **437 tests** (100% pass rate) across:
+* **Unit Tests (345 Tests)**: Group Lie algebra $SO(3)$ & $SE(3)$, PnP geometry, 15-state ESEKF propagation/update, Chi2 innovation gating, 12-state FSM state machine transitions, rate limiter bypass invariants, ENU/NED coordinate transforms, role-based auth scopes, and token-bucket rate limiters.
+* **Integration Tests (42 Tests)**: Full closed-loop digital twin execution, multi-sensor pipeline, scenario replay determinism, flight interface authorization gates, and Monte Carlo batches.
+* **Deployment Tests (45 Tests)**: FastAPI REST routing, 20 Hz WebSocket streaming backpressure, hardened Docker container security, non-root user verification, and disaster recovery rollback runbooks.
+* **Characterization Tests (5 Tests)**: Numerical parity against legacy baseline algorithms.
 
 ---
 
@@ -213,7 +291,8 @@ SkyVanta's deployment layer exposes the simulation and AI pipeline as software s
 # Start backend server with Uvicorn
 uvicorn skyvanta.deployment.api.app:app --host 0.0.0.0 --port 8080 --reload
 ```
-- **Interactive Swagger Docs**: [http://localhost:8080/docs](http://localhost:8080/docs)
+- **Live Cloud Swagger Docs**: [https://skyvanta-ai.onrender.com/docs](https://skyvanta-ai.onrender.com/docs)
+- **Local Swagger Docs**: [http://localhost:8080/docs](http://localhost:8080/docs)
 - **Infrastructure Health**: [http://localhost:8080/health](http://localhost:8080/health)
 - **Scenario Catalog**: [http://localhost:8080/api/v1/scenarios](http://localhost:8080/api/v1/scenarios)
 
@@ -274,7 +353,8 @@ SkyVanta AI incorporates an integrated defense-in-depth security boundary (`skyv
 - **WebSocket Handshake Admission**: Handshakes validate credentials before stream establishment; unauthorized clients are closed immediately (`1008 Policy Violation`).
 - **Cryptographic Security**: API keys are hashed with SHA-256 and evaluated using constant-time comparisons (`hmac.compare_digest`). Plaintext keys are never stored, logged, or exposed.
 - **Rate & Payload Limits**: Tiered token-bucket rate limiting (Read 120 rpm, Execute 30 rpm) and request body size enforcement ($64\text{ KB}$ max) prevent denial-of-service and resource exhaustion.
-### 9. Production Release, Reliability & Disaster Recovery (Phase D9)
+
+### 9. Production Release, Reliability & Disaster Recovery (Phases D9–D10)
 SkyVanta AI incorporates a deterministic release verification, graceful lifecycle, and disaster recovery subsystem (`skyvanta.deployment.release` & `skyvanta.deployment.reliability`):
 - **Current Release Version**: `0.1.0` (Core Architecture: `V1-V9` Frozen Baseline)
 - **Release Verification**: Run pre-flight verification via `python -m skyvanta release` or inspect `GET /api/v1/release`.
@@ -318,4 +398,3 @@ SkyVanta AI includes a complete documentation and presentation suite designed fo
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 Copyright (c) 2026 **SkyVanta-AI / Devendraprasad**
-

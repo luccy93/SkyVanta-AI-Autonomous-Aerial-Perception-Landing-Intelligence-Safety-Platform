@@ -10,7 +10,7 @@ This checklist outlines the visual assets, screenshots, and recording checkpoint
 | # | Asset Target | Description / Verification Point | Sanitization Check |
 |---|---|---|---|
 | **1** | **GitHub Repository Header** | Clean repository overview, release tags, and architecture badge summary. | No private URLs or tokens. |
-| **2** | **System Architecture Diagram** | High-resolution render of the V1–V9 robotics core and D1–D9 deployment layers. | Validated mermaid render. |
+| **2** | **System Architecture Diagram** | High-resolution render of the V1–V9 robotics core and D1–D10 deployment layers. | Validated mermaid render. |
 | **3** | **Interactive API Docs (`/docs`)** | Swagger UI displaying `Health`, `Release`, `Observability`, `System`, `Scenarios`, `Simulation`, and `Telemetry` tags. | Public schema only; no internal IPs. |
 | **4** | **Infrastructure Health Endpoint** | `GET /health` JSON response verifying `status: "healthy"` and `safety_boundary_enforced: true`. | Verified payload. |
 | **5** | **Scenario Execution Output** | Terminal or JSON output for `POST /api/v1/scenarios/run` (`nominal_landing`, `SUCCESS_LANDED`). | Sanitized token headers. |

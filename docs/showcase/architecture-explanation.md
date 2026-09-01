@@ -5,7 +5,7 @@
 The architecture of **SkyVanta AI** is driven by three foundational principles:
 1. **Mathematical Rigor Over Heuristics:** State estimation and pose calculations utilize formal Lie-group manifolds ($SO(3)$) and optimal estimation theory rather than empirical filters.
 2. **Defensive Safety by Design:** Safety supervisors operate as deterministic finite state machines with formal invariant guards (`ABORT -> never DESCEND`), eliminating ambiguous state transitions.
-3. **Strict Separation of Core & Deployment:** The algorithmic robotics core (Volumes V1–V9) is self-contained and frozen, while the deployment layer (Phases D1–D9) wraps the core in a hardened, observable, and authenticated cloud runtime.
+3. **Strict Separation of Core & Deployment:** The algorithmic robotics core (Volumes V1–V9) is self-contained and frozen, while the deployment layer (Phases D1–D10) wraps the core in a hardened, observable, and authenticated cloud runtime.
 
 ---
 

@@ -6,7 +6,7 @@
 
 The system is architected in two decoupled domains:
 1. **Robotics & Simulation Core (Volumes V1–V9)**: High-rate perception, Kalman tracking, monocular Perspective-n-Point (PnP) 6-DoF pose estimation, Lie-group $SO(3)$ kinematics, 15-state Error-State Extended Kalman Filtering (ESEKF), 12-state safety state machine, and digital twin simulation.
-2. **Production Deployment & Reliability Envelope (Phases D1–D9)**: Hardened Docker runtime, FastAPI REST API, 20 Hz WebSocket telemetry streaming, API key authentication, observability with latency percentiles, pre-flight release verification, and disaster recovery runbooks.
+2. **Production Deployment & Reliability Envelope (Phases D1–D10)**: Hardened Docker runtime, FastAPI REST API, 20 Hz WebSocket telemetry streaming, API key authentication, observability with latency percentiles, pre-flight release verification, disaster recovery runbooks, and final production acceptance.
 
 ---
 
@@ -38,10 +38,10 @@ Autonomous vertical landing for unmanned aerial vehicles (UAVs) in unstructured 
        │ V3 Multi-Target KF     │       │                        │
        └───────────────┬────────┘       │                        │
                        ▼                │                        │
-       ┌────────────────────────┐       │                        │
-       │ V4 Monocular 6-DoF PnP │       │  V6 15-State Error-    │
-       └───────────────┬────────┘       │     State EKF (ESEKF)  │
-                       ▼                │     (Lie Group SO(3))  │
+       ┌────────────────────────┐       │  V6 15-State Error-    │
+       │ V4 Monocular 6-DoF PnP │       │     State EKF (ESEKF)  │
+       └───────────────┬────────┘       │     (Lie Group SO(3))  │
+                       ▼                │                        │
        ┌────────────────────────┐       │                        │
        │ V5 SE(3) Localization  │──────>│                        │
        └────────────────────────┘       └───────────┬────────────┘
@@ -66,7 +66,7 @@ Autonomous vertical landing for unmanned aerial vehicles (UAVs) in unstructured 
 
 ---
 
-## 4. Production Engineering & Reliability (Phases D1–D9)
+## 4. Production Engineering & Reliability (Phases D1–D10)
 
 * **Hardened Docker Runtime (D4):** Non-root user execution (`skyvanta:skyvanta`), dropped Linux capabilities (`cap_drop: [ALL]`), and read-only container protection.
 * **FastAPI Backend & Telemetry Streaming (D2, D3):** Async REST API and WebSocket broadcast streaming 6-DoF vehicle state and safety FSM status at 20 Hz.
@@ -74,6 +74,7 @@ Autonomous vertical landing for unmanned aerial vehicles (UAVs) in unstructured 
 * **Observability & Metrics (D7):** Continuous latency percentiles (p50/p95/p99), error counters, and structured single-line JSON logging.
 * **Defense-in-Depth Security (D8):** Role-based API key authentication (`READ`, `EXECUTE`, `ADMIN`), constant-time cryptographic verification (`hmac.compare_digest`), tiered token-bucket rate limiters, and payload limits.
 * **Release Engineering & Disaster Recovery (D9):** Pure Python Git metadata detection, boot-time startup validation, idempotent graceful shutdown, and deterministic rollback runbooks.
+* **Final Production Acceptance (D10):** End-to-end cloud and container acceptance testing, live telemetry stream verification, zero-hardware isolation audit, and complete MNC showcase documentation suite.
 
 ---
 

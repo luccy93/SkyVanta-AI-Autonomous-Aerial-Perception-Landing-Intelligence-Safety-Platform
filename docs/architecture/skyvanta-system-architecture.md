@@ -6,11 +6,11 @@
 
 The system is partitioned into two distinct, decoupled layers:
 1. **Robotics & Simulation Core (Volumes V1–V9)**: Complete and frozen algorithmic pipeline.
-2. **Production Deployment & Reliability Envelope (Phases D1–D9)**: Hardened container, API, WebSocket, security, observability, release engineering, and disaster recovery layer.
+2. **Production Deployment & Reliability Envelope (Phases D1–D10)**: Hardened container, API, WebSocket, security, observability, release engineering, and disaster recovery layer.
 
 ```mermaid
 graph TD
-    subgraph "DEPLOYMENT LAYER (D1-D9)"
+    subgraph "DEPLOYMENT LAYER (D1-D10)"
         Edge["Cloud Edge / Ingress (Render / Docker)"]
         Sec["Security Middleware (Auth / Scopes / Rate Limit / Headers)"]
         Obs["Observability (Metrics / JSON Logs / Event Stream)"]
@@ -63,7 +63,7 @@ graph TD
  ┌────────────────────┴────────────────────┐
  │                                         │
 ROBOTICS CORE                         DEPLOYMENT
-V1–V9                                 D1–D9
+V1–V9                                 D1–D10
  │                                         │
  ├─ V1 Architecture Foundation             ├─ D1 Deployment Foundation
  ├─ V2 Perception Engine                   ├─ D2 FastAPI Backend
@@ -73,7 +73,8 @@ V1–V9                                 D1–D9
  ├─ V6 15-State ESEKF Sensor Fusion        ├─ D6 Cloud Deployment
  ├─ V7 Safety Supervisor FSM               ├─ D7 Observability & Ops
  ├─ V8 Flight Command Interface            ├─ D8 Security & Auth
- └─ V9 Digital Twin Scenario Engine        └─ D9 Release & Recovery
+ └─ V9 Digital Twin Scenario Engine        ├─ D9 Release & Recovery
+                                           └─ D10 Final Acceptance
  │
  └───────────────┬─────────────────────────┘
                  │
@@ -121,7 +122,7 @@ V1–V9                                 D1–D9
 
 ---
 
-## 3. Production Deployment & Reliability Envelope (Phases D1–D9)
+## 3. Production Deployment & Reliability Envelope (Phases D1–D10)
 
 ### Phase D1: Deployment Foundation
 - Multi-stage Docker packaging, non-root user execution, and base service contracts.
@@ -149,6 +150,9 @@ V1–V9                                 D1–D9
 
 ### Phase D9: Release Engineering & Disaster Recovery
 - Pre-flight release manifest generator, safe pure-Python Git commit discovery, boot-time startup validator, idempotent graceful shutdown coordinator, deterministic failure classifier, and operational rollback runbook.
+
+### Phase D10: Final Production Acceptance & Showcase
+- End-to-end cloud and container acceptance testing, live telemetry stream verification, zero-hardware isolation audit, and complete MNC showcase documentation suite.
 
 ---
 

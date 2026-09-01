@@ -14,7 +14,7 @@ This script guides a live or recorded technical demonstration showcasing the **S
 ---
 
 ### `00:30 — 01:00` | High-Level Architecture
-* **Presenter:** "The platform is structured into two decoupled domains: the frozen algorithmic robotics core (Volumes V1–V9: perception, tracking, 6-DoF PnP, spatial localization, 15-state ESEKF on $SO(3)$, safety supervision, and 6-DoF digital twin simulation) and the production deployment envelope (Phases D1–D9: hardened container, FastAPI backend, 20 Hz WebSocket streaming, API key authentication, and disaster recovery)."
+* **Presenter:** "The platform is structured into two decoupled domains: the frozen algorithmic robotics core (Volumes V1–V9: perception, tracking, 6-DoF PnP, spatial localization, 15-state ESEKF on $SO(3)$, safety supervision, and 6-DoF digital twin simulation) and the production deployment envelope (Phases D1–D10: hardened container, FastAPI backend, 20 Hz WebSocket streaming, API key authentication, and disaster recovery)."
 * **Screen:** Display `docs/architecture/skyvanta-system-architecture.md` diagram.
 
 ---
