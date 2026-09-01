@@ -499,6 +499,7 @@ Comprehensive technical specifications and audit records are available in the [`
 * **Disaster Recovery & Rollback Guide**: [`docs/deployment/d9-disaster-recovery.md`](docs/deployment/d9-disaster-recovery.md)
 * **Final Production Acceptance Report**: [`docs/audit/d10-final-production-acceptance.md`](docs/audit/d10-final-production-acceptance.md)
 * **GitHub Showcase Audit Report**: [`docs/audit/d11-github-showcase-audit.md`](docs/audit/d11-github-showcase-audit.md)
+* **Production API Reference & Showcase**: [`docs/showcase/api-showcase.md`](docs/showcase/api-showcase.md)
 
 ---
 
@@ -507,6 +508,7 @@ Comprehensive technical specifications and audit records are available in the [`
 SkyVanta AI includes a structured documentation suite specifically designed for MNC technical reviews, senior/principal engineering interviews, and systems architecture evaluations:
 
 * **Executive Summary & Problem Statement**: [`docs/showcase/technical-overview.md`](docs/showcase/technical-overview.md)
+* **Production API Reference & Specifications**: [`docs/showcase/api-showcase.md`](docs/showcase/api-showcase.md)
 * **Technical Interview Narrative Guide**: [`docs/showcase/interview-walkthrough.md`](docs/showcase/interview-walkthrough.md)
 * **Step-by-Step Live Demonstration Guide (3–5 min)**: [`docs/showcase/demo-guide.md`](docs/showcase/demo-guide.md)
 * **Architectural Decisions & Deep Dives**: [`docs/showcase/architecture-explanation.md`](docs/showcase/architecture-explanation.md)
