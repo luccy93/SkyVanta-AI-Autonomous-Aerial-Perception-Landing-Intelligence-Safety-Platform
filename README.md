@@ -208,7 +208,7 @@ Endpoint: wss://skyvanta-ai.onrender.com/api/v1/telemetry/ws?scenario=nominal_la
 
 ---
 
-## 8. Safety Architecture
+## 8. Safety Architecture ...
 
 SkyVanta AI enforces defense-in-depth safety through formal software invariant assertions:
 
