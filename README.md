@@ -487,7 +487,7 @@ docker run -d \
 
 ## 20. Limitations (disadvantage)
 
-* **Software-in-the-Loop Research Scope**: SkyVanta AI is an experimental robotics software platform engineered for software-in-the-loop (SIL) simulation, sensor fusion research, and digital twin validation.
+* **Software-in-the-Loop Research Scope**: SkyVanta AI is an experimental robotics software platform engineered for software-in-the-loop (SIL) simulation and, sensor fusion research, and digital twin validation.
 * **Aviation Certification**: This software is **not certified** by the FAA, EASA, or any civil aviation authority for physical crewed or uncrewed flight operations.
 * **No Real-World Flight Claims**: All benchmark evaluations and landing trajectories represent mathematical simulation within the digital twin environment; they do not guarantee physical flight performance under unmodeled real-world atmospheric dynamics.
 
